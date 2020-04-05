@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "648930959686",
+    "firebase_url": "https://kheapi.firebaseio.com",
+    "project_id": "kheapi",
+    "storage_bucket": "kheapi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648930959686:android:cd8c8f54870e20db150547",
+        "android_client_info": {
+          "package_name": "com.app.kheabi.csteam.project.graduation.kheabia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648930959686-csalqok2ajm3sjck1f1sh4rc2uag34cp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa9L3z9Zy83I6Or9k0xWFla4gCfFFjStU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648930959686-csalqok2ajm3sjck1f1sh4rc2uag34cp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:648930959686:android:3a91e3944c090e5a150547",
+        "android_client_info": {
+          "package_name": "com.graduation.team.abanoub.fakhery.kheapi.admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "648930959686-csalqok2ajm3sjck1f1sh4rc2uag34cp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa9L3z9Zy83I6Or9k0xWFla4gCfFFjStU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648930959686-csalqok2ajm3sjck1f1sh4rc2uag34cp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
