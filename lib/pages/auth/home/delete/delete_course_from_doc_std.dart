@@ -1,4 +1,5 @@
 import 'package:admin/models/doctor.dart';
+import 'package:admin/models/student.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -9,10 +10,11 @@ import 'package:provider/provider.dart';
 
 class DeleteCourseFromStdOrDoc extends StatefulWidget {
   final String type;
-  final String id;
+  final Student student;
   final Doctor doctor;
 
-  const DeleteCourseFromStdOrDoc({Key key, this.type, this.id, this.doctor})
+  const DeleteCourseFromStdOrDoc(
+      {Key key, this.type, this.doctor, this.student})
       : super(key: key);
 
   @override
@@ -31,7 +33,7 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
     doctorCourses = widget.doctor.subjects ?? null;
     type = widget.type;
     if (type == 'Students') {
-      //getStudentData();
+      getStudentData();
     }
   }
 
@@ -51,7 +53,7 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
           ),
         ),
       ),
-      body: networkProvider.hasNetworkConnection == null || type == 'Students'
+      body: networkProvider.hasNetworkConnection == null
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -66,7 +68,7 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
                       height: ScreenUtil().setHeight(15),
                     ),
                     Text(
-                      '${doctorCourses != null && widget.type == 'Doctors' ? widget.doctor.name : ''}',
+                      '${doctorCourses != null && doctorCourses.isNotEmpty && widget.type == 'Doctors' ? widget.doctor.name : ''}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Const.mainColor,
@@ -134,7 +136,6 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
   }
 
   void deleteCourseFromDoctor(BuildContext context, String code) {
-    print('>>>>>>>>>>> $code');
     AppUtils.showDialog(
       context: context,
       title: 'تحذير',
@@ -159,5 +160,14 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
       },
       contentText: 'هل تريد مسح الكورس؟',
     );
+  }
+
+  void getStudentData() async {
+//    var stdDataDoc = await Firestore.instance
+//        .collection('Students')
+//        .document(widget.id)
+//        .get();
+//
+//    Student currentStd = Student.fromMap(stdDataDoc.data);
   }
 }

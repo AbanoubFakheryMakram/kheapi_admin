@@ -22,6 +22,7 @@ class _AddDoctorState extends State<AddDoctor> {
   String courseName;
   String courseCode;
   String doctorCode;
+  String doctorPassword;
   String doctorName;
   Firestore _firestore = Firestore.instance;
 
@@ -119,7 +120,7 @@ class _AddDoctorState extends State<AddDoctor> {
                                   hint: 'كلمة المرور',
                                   controller: passwordController,
                                   onChange: (String input) {
-                                    doctorName = input;
+                                    doctorPassword = input;
                                   },
                                   validator: (String input) {
                                     if (input.isEmpty) {
@@ -152,7 +153,7 @@ class _AddDoctorState extends State<AddDoctor> {
                                   onChange: (String input) {
                                     doctorCode = input;
                                   },
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.emailAddress,
                                 ),
                               ),
                               MyFadeAnimation(
@@ -374,11 +375,25 @@ class _AddDoctorState extends State<AddDoctor> {
             newStd.toMap(),
           );
 
+      // register doctor with selected courses
+      for (int i = 0; i < selected.length; i++) {
+        await Firestore.instance
+            .collection('Subjects')
+            .document(selected[i])
+            .updateData(
+          {
+            'profID': doctorCodeController.text,
+            'profName': doctorNameController.text,
+          },
+        );
+      }
+
       // clear fields
       doctorCodeController.clear();
       doctorNameController.clear();
       passwordController.clear();
-      passwordController.clear();
+      phoneController.clear();
+      emailController.clear();
       identityNumberController.clear();
       selected.clear();
 
@@ -393,10 +408,12 @@ class _AddDoctorState extends State<AddDoctor> {
         .collection('Subjects')
         .getDocuments(); // fetch all subjects
 
-    print(querySnapshot.documents.length);
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       // move inside each subject
       DocumentSnapshot currentSubject = querySnapshot.documents[i];
+      // if you want to get only un registered courses use the next line command else skip next line
+      // if currentSubject.data['profID'] == null || currentSubject.data['profID'].isEmpty() then course add to list
+      // when chlick to add btn clear the list then get the new unregistered courses
       subjects.add({
         'value': currentSubject.data['code'],
         'display': currentSubject.data['name'],

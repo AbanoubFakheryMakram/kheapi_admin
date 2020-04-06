@@ -97,7 +97,7 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getStudents() async {
-    doctorsData.clear();
+    studentsData.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Students')
         .getDocuments(); // fetch all subjects
@@ -329,7 +329,7 @@ class _DeletePageState extends State<DeletePage> {
                   MaterialPageRoute(
                     builder: (_) => DeleteCourseFromStdOrDoc(
                       type: 'Doctors',
-                      id: doctorsData[index].id,
+                      student: null,
                       doctor: doctorsData[index],
                     ),
                   ),
@@ -383,7 +383,7 @@ class _DeletePageState extends State<DeletePage> {
                   MaterialPageRoute(
                     builder: (_) => DeleteCourseFromStdOrDoc(
                       type: 'Students',
-                      id: studentsData[index].id,
+                      student: studentsData[index],
                       doctor: null,
                     ),
                   ),

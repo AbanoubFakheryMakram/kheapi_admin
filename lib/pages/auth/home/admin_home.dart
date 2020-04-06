@@ -120,18 +120,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             20,
                           ),
                         ),
-                        SlideInDown(
-                          child: Text(
-                            '${Pointer.currentAdmin.name ?? ''}',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: 'Tajawal',
-                              fontWeight: FontWeight.bold,
-                              color: Const.mainColor,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
+                        Pointer.currentAdmin.name == null ||
+                                Pointer.currentAdmin.name.isEmpty
+                            ? Center(
+                                child: CircularProgressIndicator(),
+                              )
+                            : SlideInDown(
+                                child: Text(
+                                  '${Pointer.currentAdmin.name ?? ''}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontFamily: 'Tajawal',
+                                    fontWeight: FontWeight.bold,
+                                    color: Const.mainColor,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
                         SizedBox(
                           height: ScreenUtil().setHeight(
                             15,
@@ -141,14 +146,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           child: buildCards(
                             imageAsset: 'assets/images/add.png',
                             text: 'اضافة',
-                            onTap: () {
-                              Navigator.of(context).push(
-                                PageTransition(
-                                  child: AddPage(),
-                                  type: PageTransitionType.downToUp,
-                                ),
-                              );
-                            },
+                            onTap: Pointer.currentAdmin.name == null ||
+                                    Pointer.currentAdmin.name.isEmpty
+                                ? null
+                                : () {
+                                    Navigator.of(context).push(
+                                      PageTransition(
+                                        child: AddPage(),
+                                        type: PageTransitionType.downToUp,
+                                      ),
+                                    );
+                                  },
                           ),
                         ),
                         SizedBox(
@@ -160,14 +168,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           child: buildCards(
                             imageAsset: 'assets/images/delete.png',
                             text: 'حذف',
-                            onTap: () {
-                              Navigator.of(context).push(
-                                PageTransition(
-                                  child: DeletePage(),
-                                  type: PageTransitionType.fade,
-                                ),
-                              );
-                            },
+                            onTap: Pointer.currentAdmin.name == null ||
+                                    Pointer.currentAdmin.name.isEmpty
+                                ? null
+                                : () {
+                                    Navigator.of(context).push(
+                                      PageTransition(
+                                        child: DeletePage(),
+                                        type: PageTransitionType.fade,
+                                      ),
+                                    );
+                                  },
                           ),
                         ),
                         SizedBox(
@@ -179,14 +190,17 @@ class _AdminHomePageState extends State<AdminHomePage> {
                           child: buildCards(
                             imageAsset: 'assets/images/review.png',
                             text: 'مراجعة',
-                            onTap: () {
-                              Navigator.of(context).push(
-                                PageTransition(
-                                  child: ReviewPage(),
-                                  type: PageTransitionType.scale,
-                                ),
-                              );
-                            },
+                            onTap: Pointer.currentAdmin.name == null ||
+                                    Pointer.currentAdmin.name.isEmpty
+                                ? null
+                                : () {
+                                    Navigator.of(context).push(
+                                      PageTransition(
+                                        child: ReviewPage(),
+                                        type: PageTransitionType.scale,
+                                      ),
+                                    );
+                                  },
                           ),
                         ),
                       ],
