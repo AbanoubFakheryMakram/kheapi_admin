@@ -22,6 +22,8 @@ class _ReviewPageState extends State<ReviewPage> {
   String subject = '';
   String doctorName = 'اسم الدكتور';
 
+  bool searching = false;
+
   @override
   Widget build(BuildContext context) {
     var networkProvider = Provider.of<NetworkProvider>(context);
@@ -44,7 +46,7 @@ class _ReviewPageState extends State<ReviewPage> {
           ),
         ),
       ),
-      body: networkProvider.hasNetworkConnection == null || subjects.isEmpty
+      body: networkProvider.hasNetworkConnection == null
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -119,40 +121,49 @@ class _ReviewPageState extends State<ReviewPage> {
                     SizedBox(
                       height: ScreenUtil().setHeight(15),
                     ),
-                    students == null
+                    subject.isEmpty
                         ? SizedBox.shrink()
-                        : students.isEmpty
+                        : students.isEmpty && !searching
                             ? Container(
-                                margin: EdgeInsets.only(
-                                  top: ScreenUtil().setHeight(95),
-                                ),
+                                height: ScreenUtil().setHeight(100),
                                 child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                            : Expanded(
-                                child: Container(
-                                  width: double.infinity,
-                                  child: ListView.builder(
-                                    itemBuilder: (context, index) {
-                                      return SlideInRight(
-                                        child: ListTile(
-                                          onTap: () {},
-                                          trailing: Icon(
-                                            Icons.verified_user,
-                                            color: Const.mainColor,
-                                          ),
-                                          title: Text(
-                                            students[index],
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    itemCount: students.length,
+                                  child: Text(
+                                    'لا يوجد طلاب تم تسجيلهم لهذا المقرر',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.black),
                                   ),
                                 ),
                               )
+                            : students.isEmpty && searching
+                                ? Container(
+                                    height: ScreenUtil().setHeight(100),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                : Expanded(
+                                    child: Container(
+                                      width: double.infinity,
+                                      child: ListView.builder(
+                                        itemBuilder: (context, index) {
+                                          return SlideInRight(
+                                            child: ListTile(
+                                              onTap: () {},
+                                              trailing: Icon(
+                                                Icons.verified_user,
+                                                color: Const.mainColor,
+                                              ),
+                                              title: Text(
+                                                students[index],
+                                                textAlign: TextAlign.right,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        itemCount: students.length,
+                                      ),
+                                    ),
+                                  )
                   ],
                 )
               : Container(
@@ -212,7 +223,8 @@ class _ReviewPageState extends State<ReviewPage> {
 
   void handleSelection(value) async {
     subject = value;
-
+    searching = true;
+    setState(() {});
     // get doctor name for this course
     doctorName = subjectsData
         .firstWhere((currentSub) => currentSub.code == subject)
@@ -235,6 +247,7 @@ class _ReviewPageState extends State<ReviewPage> {
       students.add(docs.documents[i].data['std_name']);
     }
 
+    searching = false;
     setState(() {});
   }
 }

@@ -1,5 +1,6 @@
 import 'package:admin/models/doctor.dart';
 import 'package:admin/models/student.dart';
+import 'package:admin/models/subject.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -23,23 +24,31 @@ class DeleteCourseFromStdOrDoc extends StatefulWidget {
 }
 
 class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
-  List<String> doctorCourses;
+  List<String> doctorCourses = List();
+  List<Subject> studentCourses = List();
+
+  bool fetched = false;
+
   String type;
 
   @override
   void initState() {
     super.initState();
 
-    doctorCourses = widget.doctor.subjects ?? null;
-    type = widget.type;
-    if (type == 'Students') {
-      getStudentData();
-    }
+    doctorCourses = widget.doctor == null ? null : widget.doctor.subjects;
   }
 
   @override
   Widget build(BuildContext context) {
     var networkProvider = Provider.of<NetworkProvider>(context);
+
+    if (networkProvider.hasNetworkConnection != null &&
+        networkProvider.hasNetworkConnection &&
+        widget.student != null &&
+        !fetched) {
+      getStudentCourses();
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Const.mainColor,
@@ -68,7 +77,7 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
                       height: ScreenUtil().setHeight(15),
                     ),
                     Text(
-                      '${doctorCourses != null && doctorCourses.isNotEmpty && widget.type == 'Doctors' ? widget.doctor.name : ''}',
+                      '${widget.type == 'Doctors' ? widget.doctor.name : widget.student.name}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Const.mainColor,
@@ -78,39 +87,86 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
                     SizedBox(
                       height: ScreenUtil().setHeight(5),
                     ),
-                    doctorCourses != null && widget.type == 'Doctors'
-                        ? Expanded(
-                            child: ListView.builder(
-                              addAutomaticKeepAlives: true,
-                              itemCount: widget.doctor.subjects.length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  onTap: () {
-                                    deleteCourseFromDoctor(
-                                        context, '${doctorCourses[index]}');
+                    widget.type == 'Doctors'
+                        ? doctorCourses != null
+                            ? Expanded(
+                                child: ListView.builder(
+                                  addAutomaticKeepAlives: true,
+                                  itemCount: widget.doctor.subjects.length,
+                                  itemBuilder: (context, index) {
+                                    return ListTile(
+                                      onTap: () {
+                                        deleteCourseFromDoctor(
+                                            context, '${doctorCourses[index]}');
+                                      },
+                                      leading: Text(
+                                        'X',
+                                        textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      trailing: Icon(
+                                        Icons.description,
+                                        color: Const.mainColor,
+                                      ),
+                                      title: Text(
+                                        '${doctorCourses[index]}',
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    );
                                   },
-                                  leading: Text(
-                                    'X',
-                                    textAlign: TextAlign.right,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
+                                ),
+                              )
+                            : SizedBox.shrink()
+                        : studentCourses.isEmpty && fetched
+                            ? SizedBox.shrink()
+                            : studentCourses.isEmpty && !fetched
+                                ? Container(
+                                    height: ScreenUtil().setHeight(160),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
                                     ),
-                                  ),
-                                  trailing: Icon(
-                                    Icons.description,
-                                    color: Const.mainColor,
-                                  ),
-                                  title: Text(
-                                    '${doctorCourses[index]}',
-                                    textAlign: TextAlign.right,
-                                  ),
-                                );
-                              },
-                            ),
-                          )
-                        : SizedBox.shrink()
+                                  )
+                                : Expanded(
+                                    child: ListView.builder(
+                                      addAutomaticKeepAlives: true,
+                                      itemCount: studentCourses.length,
+                                      itemBuilder: (context, index) {
+                                        return ListTile(
+                                          onTap: () {
+                                            deleteCourseFromStudent(
+                                              context,
+                                              index,
+                                            );
+                                          },
+                                          leading: Text(
+                                            'X',
+                                            textAlign: TextAlign.right,
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
+                                            ),
+                                          ),
+                                          trailing: Icon(
+                                            Icons.description,
+                                            color: Const.mainColor,
+                                          ),
+                                          subtitle: Text(
+                                            '${studentCourses[index].code}',
+                                            textAlign: TextAlign.right,
+                                          ),
+                                          title: Text(
+                                            '${studentCourses[index].name}',
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  )
                   ],
                 )
               : Container(
@@ -162,12 +218,56 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
     );
   }
 
-  void getStudentData() async {
-//    var stdDataDoc = await Firestore.instance
-//        .collection('Students')
-//        .document(widget.id)
-//        .get();
-//
-//    Student currentStd = Student.fromMap(stdDataDoc.data);
+  void deleteCourseFromStudent(BuildContext context, index) {
+    AppUtils.showDialog(
+      context: context,
+      title: 'تحذير',
+      negativeText: 'الغاء',
+      positiveText: 'تاكيد',
+      onNegativeButtonPressed: () {
+        Navigator.of(context).pop();
+      },
+      onPositiveButtonPressed: () async {
+        Navigator.of(context).pop();
+
+        print(studentCourses[index].code);
+
+        await Firestore.instance
+            .collection('Subjects')
+            .document(studentCourses[index].code)
+            .collection('Students')
+            .document(widget.student.id)
+            .delete();
+
+        studentCourses.removeAt(index);
+        setState(() {});
+        AppUtils.showToast(msg: 'تم مسج الكورس');
+      },
+      contentText: 'هل تريد مسح الكورس؟',
+    );
+  }
+
+  void getStudentCourses() async {
+    Firestore firestore = Firestore.instance;
+    var allSubjects = await firestore.collection('Subjects').getDocuments();
+
+    for (int i = 0; i < allSubjects.documents.length; i++) {
+      var currentSubjectStudents = await firestore
+          .collection('Subjects')
+          .document(allSubjects.documents[i].documentID)
+          .collection('Students')
+          .getDocuments();
+
+      for (int j = 0; j < currentSubjectStudents.documents.length; j++) {
+        if (currentSubjectStudents.documents[j].documentID ==
+            widget.student.id) {
+          Subject subject = Subject.fromMap(allSubjects.documents[i].data);
+          studentCourses.add(subject);
+        }
+      }
+    }
+
+    fetched = true;
+    setState(() {});
   }
 }

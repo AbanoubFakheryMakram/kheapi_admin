@@ -1,5 +1,6 @@
 import 'package:admin/pages/auth/home/add/add_course.dart';
 import 'package:admin/pages/auth/home/add/add_doctor.dart';
+import 'package:admin/pages/auth/home/add/add_files.dart';
 import 'package:admin/pages/auth/home/add/add_std.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/const.dart';
@@ -73,7 +74,14 @@ class AddPage extends StatelessWidget {
                       ),
                       buildOption(
                         title: 'اضافة ملف بيانات',
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(
+                            PageTransition(
+                              child: AddFilesPage(),
+                              type: PageTransitionType.leftToRight,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

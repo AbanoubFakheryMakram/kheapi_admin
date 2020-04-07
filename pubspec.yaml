@@ -45,6 +45,7 @@ dependencies:
   animated_text_kit:
   intl:
   multiselect_formfield:
+  csv:
 
 dev_dependencies:
   flutter_test:
@@ -63,8 +64,10 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/
     - assets/images/
     - assets/fonts/
+    - assets/csv/
 
   fonts:
     - family: Tajawal

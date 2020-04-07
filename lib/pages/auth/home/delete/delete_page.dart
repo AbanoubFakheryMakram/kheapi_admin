@@ -29,6 +29,9 @@ class _DeletePageState extends State<DeletePage> {
     super.initState();
 
     selectedRadio = 0;
+    subjectsData.clear();
+    doctorsData.clear();
+    studentsData.clear();
   }
 
   setSelectedRadio(int val) {
@@ -40,7 +43,6 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getSubjects() async {
-    subjectsData.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Subjects')
         .getDocuments(); // fetch all subjects
@@ -66,7 +68,6 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getDoctors() async {
-    doctorsData.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Doctors')
         .getDocuments(); // fetch all subjects
@@ -97,7 +98,6 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getStudents() async {
-    studentsData.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Students')
         .getDocuments(); // fetch all subjects

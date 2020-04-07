@@ -37,6 +37,18 @@ class Subject {
     };
   }
 
+  factory Subject.fromMap(Map map) {
+    return Subject(
+      academicYear: map['academicYear'],
+      code: map['code'],
+      currentCount: map['currentCount'],
+      name: map['name'],
+      profID: map['profID'],
+      semester: map['semester'],
+      profName: map['profName'],
+    );
+  }
+
   String get getName => name;
 
   set setName(String name) => this.name = name;
