@@ -98,46 +98,6 @@ class _AddCourseState extends State<AddCourse> {
                                   keyboardType: TextInputType.text,
                                 ),
                               ),
-//                              MyFadeAnimation(
-//                                delayinseconds: 2,
-//                                child: buildField(
-//                                  hint: 'اسم الدكتور',
-//                                  controller: doctorNameController,
-//                                  onChange: (String input) {
-//                                    doctorName = input;
-//                                  },
-//                                  validator: (String input) {
-//                                    if (input.isEmpty) {
-//                                      return 'مطلوب';
-//                                    } else if (input.length < 3) {
-//                                      return 'اسم الدكتور لا يمكن ان يقل عن 3 حروف';
-//                                    } else {
-//                                      return null;
-//                                    }
-//                                  },
-//                                  keyboardType: TextInputType.text,
-//                                ),
-//                              ),
-//                              MyFadeAnimation(
-//                                delayinseconds: 2.5,
-//                                child: buildField(
-//                                  hint: 'كود الدكتور',
-//                                  controller: doctorCodeController,
-//                                  onChange: (String input) {
-//                                    doctorCode = input;
-//                                  },
-//                                  validator: (String input) {
-//                                    if (input.isEmpty) {
-//                                      return 'مطلوب';
-//                                    } else if (input.length < 3) {
-//                                      return 'كود الدكتور لا يمكن ان يقل عن 3 حروف';
-//                                    } else {
-//                                      return null;
-//                                    }
-//                                  },
-//                                  keyboardType: TextInputType.text,
-//                                ),
-//                              ),
                               MyFadeAnimation(
                                 delayinseconds: 2,
                                 child: Container(
@@ -234,17 +194,6 @@ class _AddCourseState extends State<AddCourse> {
   void validateAndSave(AnimationController controller) async {
     if (_formKey.currentState.validate()) {
       controller.forward();
-
-//      bool isDoctorCodeExist = await FirebaseUtils.doesObjectExist(
-//        username: doctorCode,
-//        collection: 'Doctors',
-//      );
-//
-//      if (!isDoctorCodeExist) {
-//        AppUtils.showToast(msg: 'كود الدكتور غير موجود');
-//        controller.reverse();
-//        return;
-//      }
 
       bool isCourseCodeExist = await FirebaseUtils.doesObjectExist(
         username: doctorCode,

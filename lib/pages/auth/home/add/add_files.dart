@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:admin/pages/auth/home/add/add_course_file.dart';
 import 'package:admin/providers/network_provider.dart';
+import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +15,22 @@ class AddFilesPage extends StatefulWidget {
 }
 
 class _AddFilesPageState extends State<AddFilesPage> {
+  File selectedFile;
+
+  Future<void> pickCSVFile() async {
+    try {
+      selectedFile = await FilePicker.getFile(
+        type: FileType.custom,
+        fileExtension: "csv",
+      );
+
+      setState(() {});
+    } catch (e) {
+      print(e);
+    }
+    if (!mounted) return;
+  }
+
   @override
   Widget build(BuildContext context) {
     var networkProvider = Provider.of<NetworkProvider>(context);
@@ -34,10 +54,7 @@ class _AddFilesPageState extends State<AddFilesPage> {
           : networkProvider.hasNetworkConnection
               ? Column(
                   children: <Widget>[
-                    Hero(
-                      tag: 'assets/images/add.png',
-                      child: Image.asset('assets/images/add.png'),
-                    ),
+                    Image.asset('assets/images/add.png'),
                     SizedBox(
                       height: ScreenUtil().setHeight(60),
                     ),
@@ -54,10 +71,16 @@ class _AddFilesPageState extends State<AddFilesPage> {
                       ),
                       child: RaisedButton(
                         color: Const.mainColor,
-                        onPressed: () {
+                        onPressed: () async {
+                          await pickCSVFile();
+                          if (selectedFile == null) {
+                            AppUtils.showToast(msg: 'قم باختيار الملف اولا');
+                            return;
+                          }
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) => AddCourseFile(),
+                              builder: (_) =>
+                                  AddCourseFile(selectedFile: selectedFile),
                             ),
                           );
                         },
@@ -78,7 +101,19 @@ class _AddFilesPageState extends State<AddFilesPage> {
                       ),
                       child: RaisedButton(
                         color: Const.mainColor,
-                        onPressed: () {},
+                        onPressed: () async {
+                          await pickCSVFile();
+                          if (selectedFile == null) {
+                            AppUtils.showToast(msg: 'قم باختيار الملف اولا');
+                            return;
+                          }
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AddCourseFile(selectedFile: selectedFile),
+                            ),
+                          );
+                        },
                         child: Center(
                           child: Text(
                             'اضافة طالب',
@@ -96,7 +131,19 @@ class _AddFilesPageState extends State<AddFilesPage> {
                       ),
                       child: RaisedButton(
                         color: Const.mainColor,
-                        onPressed: () {},
+                        onPressed: () async {
+                          await pickCSVFile();
+                          if (selectedFile == null) {
+                            AppUtils.showToast(msg: 'قم باختيار الملف اولا');
+                            return;
+                          }
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  AddCourseFile(selectedFile: selectedFile),
+                            ),
+                          );
+                        },
                         child: Center(
                           child: Text(
                             'اضافة دكتور',

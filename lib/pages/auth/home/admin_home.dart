@@ -68,8 +68,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
               AppUtils.showDialog(
                 context: context,
                 title: 'تسجيل الخروج',
-                negativeText: 'الغاء',
-                positiveText: 'تاكيد',
+                negativeText: 'تاكيد',
+                positiveText: 'الغاء',
                 onPositiveButtonPressed: () {
                   Navigator.of(context).pop();
                 },

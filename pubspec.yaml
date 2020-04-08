@@ -32,20 +32,18 @@ dependencies:
   progress_indicator_button:
   fluttertoast:
   permission_handler: 4.4.0+hotfix.2
-  cached_network_image:
   connectivity:
   animate_do:
   data_connection_checker:
   firebase_core:
   firebase_auth:
-  firebase_storage:
   provider:
   cloud_firestore:
-  twitter_qr_scanner:
-  animated_text_kit:
   intl:
   multiselect_formfield:
   csv:
+  progress_dialog:
+  file_picker: 1.5.0+2
 
 dev_dependencies:
   flutter_test:
