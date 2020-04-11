@@ -1,6 +1,8 @@
 import 'package:admin/models/doctor.dart';
+import 'package:admin/models/pointer.dart';
 import 'package:admin/models/student.dart';
 import 'package:admin/models/subject.dart';
+import 'package:admin/pages/auth/home/admin_home.dart';
 import 'package:admin/pages/auth/home/delete/delete_course_from_doc_std.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
@@ -43,11 +45,11 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getSubjects() async {
+    subjectsData.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Subjects')
         .getDocuments(); // fetch all subjects
 
-    print(querySnapshot.documents.length);
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       DocumentSnapshot currentSubject = querySnapshot.documents[i];
 
@@ -64,15 +66,16 @@ class _DeletePageState extends State<DeletePage> {
       }
     }
 
+    print('subjects: ${subjectsData.length}');
     setState(() {});
   }
 
   void getDoctors() async {
+    doctorsData.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Doctors')
         .getDocuments(); // fetch all subjects
 
-    print(querySnapshot.documents.length);
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       DocumentSnapshot currentSubject = querySnapshot.documents[i];
 
@@ -94,15 +97,16 @@ class _DeletePageState extends State<DeletePage> {
       }
     }
 
+    print('doctors: ${doctorsData.length}');
     setState(() {});
   }
 
   void getStudents() async {
+    studentsData.clear();
     QuerySnapshot querySnapshot = await _firestore
         .collection('Students')
         .getDocuments(); // fetch all subjects
 
-    print(querySnapshot.documents.length);
     for (int i = 0; i < querySnapshot.documents.length; i++) {
       DocumentSnapshot currentStudent = querySnapshot.documents[i];
 
@@ -124,28 +128,45 @@ class _DeletePageState extends State<DeletePage> {
       }
     }
 
+    print('students: ${studentsData.length}');
+
     setState(() {});
   }
+
+  bool subStop = false;
+  bool stdStop = false;
+  bool docStop = false;
 
   @override
   Widget build(BuildContext context) {
     var networkProvider = Provider.of<NetworkProvider>(context);
-
     if (networkProvider.hasNetworkConnection != null &&
         networkProvider.hasNetworkConnection) {
-      if (subjectsData.isEmpty) {
+      if (subjectsData.isEmpty && !subStop) {
+        subStop = true;
         getSubjects();
       }
-      if (doctorsData.isEmpty) {
+      if (doctorsData.isEmpty && !docStop) {
+        docStop = true;
         getDoctors();
       }
-      if (studentsData.isEmpty) {
+      if (studentsData.isEmpty && !stdStop) {
+        stdStop = true;
         getStudents();
       }
     }
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) =>
+                  AdminHomePage(username: Pointer.currentAdmin.username),
+            ),
+          ),
+        ),
         backgroundColor: Const.mainColor,
         title: Text(
           'حذف',

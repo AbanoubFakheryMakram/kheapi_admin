@@ -1,5 +1,6 @@
 import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/models/student.dart';
+import 'package:admin/pages/auth/home/add/show_add_stds.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -276,6 +277,35 @@ class _AddStdState extends State<AddStd> {
                                     onPressed:
                                         (AnimationController controller) {
                                       validateAndSave(controller);
+                                    },
+                                  ),
+                                ),
+                              ),
+                              MyFadeAnimation(
+                                delayinseconds: 5.5,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(20),
+                                    right: ScreenUtil().setWidth(20),
+                                    bottom: ScreenUtil().setWidth(30),
+                                  ),
+                                  height: ScreenUtil().setHeight(48),
+                                  child: ProgressButton(
+                                    color: Const.mainColor,
+                                    child: Text(
+                                      'عرض كل الطلاب',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Tajawal',
+                                      ),
+                                    ),
+                                    onPressed:
+                                        (AnimationController controller) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => ShowAllStudents(),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),

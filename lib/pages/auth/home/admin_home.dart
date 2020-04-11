@@ -31,7 +31,9 @@ class AdminHomePage extends StatefulWidget {
 class _AdminHomePageState extends State<AdminHomePage> {
   void loadUserData() async {
     DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
-        username: widget.username, collection: 'Admins');
+      username: widget.username,
+      collection: 'Admins',
+    );
 
     Admin currentUser = Admin.fromMap(snapshot.data);
     Pointer.currentAdmin = currentUser;

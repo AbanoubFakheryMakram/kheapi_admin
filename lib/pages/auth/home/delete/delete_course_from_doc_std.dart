@@ -1,6 +1,7 @@
 import 'package:admin/models/doctor.dart';
 import 'package:admin/models/student.dart';
 import 'package:admin/models/subject.dart';
+import 'package:admin/pages/auth/home/delete/delete_page.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -29,8 +30,6 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
 
   bool fetched = false;
 
-  String type;
-
   @override
   void initState() {
     super.initState();
@@ -46,11 +45,28 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
         networkProvider.hasNetworkConnection &&
         widget.student != null &&
         !fetched) {
+      fetched = true;
       getStudentCourses();
     }
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => DeletePage(),
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.remove_circle),
+            onPressed: () {
+              deleteAll();
+            },
+          ),
+        ],
         backgroundColor: Const.mainColor,
         title: Text(
           'حذف',
@@ -201,10 +217,8 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
         Navigator.of(context).pop();
       },
       onPositiveButtonPressed: () async {
-        doctorCourses.remove('$code');
         Navigator.of(context).pop();
-        setState(() {});
-        AppUtils.showToast(msg: 'تم مسج الكورس');
+        AppUtils.showToast(msg: 'جاري المسح');
         await Firestore.instance
             .collection('Doctors')
             .document(widget.doctor.id)
@@ -213,6 +227,20 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
             'subjects': FieldValue.arrayRemove(['$code']),
           },
         );
+
+        await Firestore.instance
+            .collection('Subjects')
+            .document(code)
+            .updateData(
+          {
+            'profID': '',
+            'profName': '',
+          },
+        );
+
+        AppUtils.showToast(msg: 'تم مسج الكورس');
+        doctorCourses.remove('$code');
+        setState(() {});
       },
       contentText: 'هل تريد مسح الكورس؟',
     );
@@ -267,7 +295,64 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
       }
     }
 
-    fetched = true;
     setState(() {});
+  }
+
+  void deleteAll() async {
+    if (widget.student != null) {
+      if (studentCourses.length == 0) {
+        AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
+        return;
+      }
+      AppUtils.showToast(msg: 'جاري المسح');
+      Firestore firestore = Firestore.instance;
+      var allSubjects = await firestore.collection('Subjects').getDocuments();
+      for (int i = 0; i < allSubjects.documents.length; i++) {
+        studentCourses.removeAt(i);
+        await firestore
+            .collection('Subjects')
+            .document(allSubjects.documents[i].documentID)
+            .collection('Students')
+            .document(widget.student.id)
+            .delete();
+      }
+
+      AppUtils.showToast(msg: 'تم المسح');
+      if (mounted) {
+        setState(() {});
+      }
+    } else {
+      if (doctorCourses.length == 0) {
+        AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
+        return;
+      }
+      AppUtils.showToast(msg: 'جاري المسح');
+      Firestore firestore = Firestore.instance;
+      for (int i = 0; i < doctorCourses.length; i++) {
+        await firestore
+            .collection('Doctors')
+            .document(widget.doctor.id)
+            .updateData(
+          {
+            'subjects': FieldValue.arrayRemove([doctorCourses[i]]),
+          },
+        );
+        await firestore
+            .collection('Subjects')
+            .document(doctorCourses[i])
+            .updateData(
+          {
+            'profID': '',
+            'profName': '',
+          },
+        );
+        doctorCourses.removeAt(i);
+      }
+
+      AppUtils.showToast(msg: 'تم المسح');
+      if (mounted) {
+        setState(() {});
+      }
+    }
   }
 }

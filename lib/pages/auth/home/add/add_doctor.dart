@@ -1,5 +1,6 @@
 import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/models/doctor.dart';
+import 'package:admin/pages/auth/home/add/show_all_doctors.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -254,6 +255,35 @@ class _AddDoctorState extends State<AddDoctor> {
                                     onPressed:
                                         (AnimationController controller) {
                                       validateAndSave(controller);
+                                    },
+                                  ),
+                                ),
+                              ),
+                              MyFadeAnimation(
+                                delayinseconds: 5,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(20),
+                                    right: ScreenUtil().setWidth(20),
+                                    bottom: ScreenUtil().setWidth(30),
+                                  ),
+                                  height: ScreenUtil().setHeight(48),
+                                  child: ProgressButton(
+                                    color: Const.mainColor,
+                                    child: Text(
+                                      'عرض كل الدكاترة',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Tajawal',
+                                      ),
+                                    ),
+                                    onPressed:
+                                        (AnimationController controller) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => ShowAllDoctors(),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),

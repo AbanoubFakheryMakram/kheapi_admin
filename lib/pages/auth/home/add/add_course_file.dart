@@ -149,6 +149,7 @@ class _AddCourseFileState extends State<AddCourseFile> {
   void uploadToDatabase(BuildContext context) async {
     showLoadingHud(context);
     var firetore = Firestore.instance;
+    var allSubjects = await firetore.collection('Subjects').getDocuments();
     for (int i = 0; i < loadedData.length; i++) {
       print('Code: ${loadedData[i][0]}');
       print('Name: ${loadedData[i][1]}');
@@ -172,17 +173,26 @@ class _AddCourseFileState extends State<AddCourseFile> {
         ),
       );
 
-      await firetore.collection('Subjects').document(loadedData[i][0]).setData({
-        'name': loadedData[i][1],
-        'code': loadedData[i][0],
-        'academicYear': loadedData[i][2],
-        'semester': '',
-        'profID': '',
-        'profName': '',
-        'currentCount': '0',
-      });
+      if (allSubjects.documents
+          .getRange(0, allSubjects.documents.length)
+          .contains(loadedData[i][0])) {
+        continue;
+      } else {
+        await firetore
+            .collection('Subjects')
+            .document(loadedData[i][0])
+            .setData({
+          'name': loadedData[i][1],
+          'code': loadedData[i][0],
+          'academicYear': loadedData[i][2],
+          'semester': '',
+          'profID': '',
+          'profName': '',
+          'currentCount': '0',
+        });
 
-      print('============== Uploaded ===============');
+        print('============== Uploaded ===============');
+      }
     }
 
     hideLoadingHud(context);

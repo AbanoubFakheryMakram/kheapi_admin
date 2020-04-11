@@ -1,5 +1,6 @@
 import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/models/subject.dart';
+import 'package:admin/pages/auth/home/add/show_all_courses.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -120,6 +121,35 @@ class _AddCourseState extends State<AddCourse> {
                                     onPressed:
                                         (AnimationController controller) {
                                       validateAndSave(controller);
+                                    },
+                                  ),
+                                ),
+                              ),
+                              MyFadeAnimation(
+                                delayinseconds: 2.5,
+                                child: Container(
+                                  margin: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(20),
+                                    right: ScreenUtil().setWidth(20),
+                                    bottom: ScreenUtil().setWidth(30),
+                                  ),
+                                  height: ScreenUtil().setHeight(48),
+                                  child: ProgressButton(
+                                    color: Const.mainColor,
+                                    child: Text(
+                                      'عرض كل المواد',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'Tajawal',
+                                      ),
+                                    ),
+                                    onPressed:
+                                        (AnimationController controller) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => ShowAllCourses(),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
