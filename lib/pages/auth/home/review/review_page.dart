@@ -109,7 +109,10 @@ class _ReviewPageState extends State<ReviewPage> {
                         ),
                         child: Center(
                           child: Text(
-                            doctorName,
+                            doctorName.isEmpty
+                                ? 'لم يتم تعيين مشرف لهذه المادة بعد'
+                                : doctorName,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -156,6 +159,10 @@ class _ReviewPageState extends State<ReviewPage> {
                                               title: Text(
                                                 students[index],
                                                 textAlign: TextAlign.right,
+                                              ),
+                                              leading: Icon(
+                                                Icons.wifi_tethering,
+                                                color: Colors.amber,
                                               ),
                                             ),
                                           );

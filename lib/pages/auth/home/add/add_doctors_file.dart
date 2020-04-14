@@ -6,19 +6,20 @@ import 'package:admin/utils/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 
-class AddCourseFile extends StatefulWidget {
+class AddDoctorsFile extends StatefulWidget {
   final File selectedFile;
 
-  const AddCourseFile({Key key, this.selectedFile}) : super(key: key);
+  const AddDoctorsFile({Key key, this.selectedFile}) : super(key: key);
 
   @override
-  _AddCourseFileState createState() => _AddCourseFileState();
+  _AddDoctorsFileState createState() => _AddDoctorsFileState();
 }
 
-class _AddCourseFileState extends State<AddCourseFile> {
+class _AddDoctorsFileState extends State<AddDoctorsFile> {
   List<List<dynamic>> loadedData;
 
   ProgressDialog pr;
@@ -31,7 +32,7 @@ class _AddCourseFileState extends State<AddCourseFile> {
   }
 
   loadCSVFile() async {
-    final data = widget.selectedFile.path;
+    final data = await rootBundle.loadString('assets/csv/doctors.csv');
     loadedData = CsvToListConverter().convert(data);
     if (mounted) setState(() {});
   }
@@ -107,7 +108,7 @@ class _AddCourseFileState extends State<AddCourseFile> {
                                           : row.toString(),
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         color: row == null ||
                                                 row.toString().isEmpty
                                             ? Colors.red
@@ -150,22 +151,21 @@ class _AddCourseFileState extends State<AddCourseFile> {
 
   hideLoadingHud(BuildContext context) {
     pr.dismiss();
+    pr.hide();
+    setState(() {});
   }
 
   void uploadToDatabase(BuildContext context) async {
     showLoadingHud(context);
-    var firetore = Firestore.instance;
-    var allSubjects = await firetore.collection('Subjects').getDocuments();
-    for (int i = 0; i < loadedData.length; i++) {
-      print('Code: ${loadedData[i][0]}');
-      print('Name: ${loadedData[i][1]}');
-      print('Academic year: ${loadedData[i][2]}');
-
+    var firetore = Firestore.instance.collection('Doctors');
+    for (int i = 0; i < loadedData.length; i = i + 4) {
       pr.update(
         progress: i.toDouble(),
         message: "...جاري الرفع",
         progressWidget: Container(
-            padding: EdgeInsets.all(8.0), child: CircularProgressIndicator()),
+          padding: EdgeInsets.all(8.0),
+          child: CircularProgressIndicator(),
+        ),
         maxProgress: loadedData.length.toDouble(),
         progressTextStyle: TextStyle(
           color: Colors.black,
@@ -179,25 +179,73 @@ class _AddCourseFileState extends State<AddCourseFile> {
         ),
       );
 
-      if (allSubjects.documents
-          .getRange(0, allSubjects.documents.length)
-          .contains(loadedData[i][0])) {
-        continue;
-      } else {
-        await firetore
-            .collection('Subjects')
-            .document(loadedData[i][0])
-            .setData({
-          'name': loadedData[i][1],
-          'code': loadedData[i][0],
-          'academicYear': loadedData[i][2],
-          'semester': '',
-          'profID': '',
-          'profName': '',
-          'currentCount': '0',
-        });
+      await firetore.document('${loadedData[i][1]}').setData(
+        {
+          'email': '${loadedData[i][3]}',
+          'id': '${loadedData[i][1]}',
+          'image': '',
+          'name': '${loadedData[i][0]}',
+          'password': '${loadedData[i][2]}',
+          'phone': '${loadedData[i][4]}',
+          'ssn': '${loadedData[i][5]}',
+        },
+      );
 
-        print('============== Uploaded ===============');
+      await firetore.document('${loadedData[i][1]}').updateData(
+        {
+          'subjects': FieldValue.arrayUnion(['${loadedData[i + 1][0]}']),
+        },
+      );
+      await firetore.document('${loadedData[i][1]}').updateData(
+        {
+          'subjects': FieldValue.arrayUnion(['${loadedData[i + 2][0]}']),
+        },
+      );
+      await firetore.document('${loadedData[i][1]}').updateData(
+        {
+          'subjects': FieldValue.arrayUnion(['${loadedData[i + 3][0]}']),
+        },
+      );
+
+      // get all subjects
+      var allSubjects =
+          await Firestore.instance.collection('Subjects').getDocuments();
+      // loop thought each subject
+      for (int j = 0; j < allSubjects.documents.length; j++) {
+        // if current subject's code == the current doctor's subject code then register(bind) doctor with this subject
+        if (allSubjects.documents[j].documentID == '${loadedData[i + 1][0]}') {
+          await Firestore.instance
+              .collection('Subjects')
+              .document(allSubjects.documents[j].documentID)
+              .updateData(
+            {
+              'profName': '${loadedData[i][0]}',
+              'profID': '${loadedData[i][1]}',
+            },
+          );
+        }
+        if (allSubjects.documents[j].documentID == '${loadedData[i + 2][0]}') {
+          await Firestore.instance
+              .collection('Subjects')
+              .document(allSubjects.documents[j].documentID)
+              .updateData(
+            {
+              'profName': '${loadedData[i][0]}',
+              'profID': '${loadedData[i][1]}',
+            },
+          );
+        }
+        if (allSubjects.documents[j].documentID == '${loadedData[i + 3][0]}') {
+          await Firestore.instance
+              .collection('Subjects')
+              .document(allSubjects.documents[j].documentID)
+              .updateData(
+            {
+              'profName': '${loadedData[i][0]}',
+              'profID': '${loadedData[i][1]}',
+            },
+          );
+        }
       }
     }
 

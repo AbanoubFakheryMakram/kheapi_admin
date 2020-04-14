@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:admin/pages/auth/home/add/add_course_file.dart';
+import 'package:admin/pages/auth/home/add/add_doctors_file.dart';
+import 'package:admin/pages/auth/home/add/add_stds_file.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -86,7 +88,7 @@ class _AddFilesPageState extends State<AddFilesPage> {
                         },
                         child: Center(
                           child: Text(
-                            'اضافة كورس',
+                            'اضافة كورسات',
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                         ),
@@ -109,14 +111,16 @@ class _AddFilesPageState extends State<AddFilesPage> {
                           }
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  AddCourseFile(selectedFile: selectedFile),
+                              builder: (_) => AddStudentsFile(
+                                selectedFile: selectedFile,
+                              ),
                             ),
                           );
+                          selectedFile = null;
                         },
                         child: Center(
                           child: Text(
-                            'اضافة طالب',
+                            'اضافة طلاب',
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                         ),
@@ -139,14 +143,16 @@ class _AddFilesPageState extends State<AddFilesPage> {
                           }
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  AddCourseFile(selectedFile: selectedFile),
+                              builder: (_) => AddDoctorsFile(
+                                  //  selectedFile: selectedFile,
+                                  ),
                             ),
                           );
+                          selectedFile = null;
                         },
                         child: Center(
                           child: Text(
-                            'اضافة دكتور',
+                            'اضافة اساتذة',
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                         ),

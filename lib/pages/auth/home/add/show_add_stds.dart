@@ -38,9 +38,13 @@ class ShowAllStudents extends StatelessWidget {
                             title: Text(
                               '${currentStudent.data['name']}',
                               textAlign: TextAlign.right,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             subtitle: Text(
-                              '${currentStudent.data['id']}',
+                              'كود:  ${currentStudent.data['id']}',
+                              textDirection: TextDirection.rtl,
                               textAlign: TextAlign.right,
                             ),
                             leading: currentStudent.data['level'] == ''
