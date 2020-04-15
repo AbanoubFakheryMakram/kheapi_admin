@@ -20,9 +20,9 @@ class DeletePage extends StatefulWidget {
 class _DeletePageState extends State<DeletePage> {
   // 0 >> Course    ||    1 >> Student    ||    2 >> Doctor
   int selectedRadio;
-  List<Subject> subjectsData = [];
-  List<Doctor> doctorsData = [];
-  List<Student> studentsData = [];
+  List<Subject> subjectsData;
+  List<Doctor> doctorsData;
+  List<Student> studentsData;
   final Firestore _firestore = Firestore.instance;
   String subject = '';
 
@@ -31,9 +31,6 @@ class _DeletePageState extends State<DeletePage> {
     super.initState();
 
     selectedRadio = 0;
-    subjectsData.clear();
-    doctorsData.clear();
-    studentsData.clear();
   }
 
   setSelectedRadio(int val) {
@@ -45,7 +42,7 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getSubjects() async {
-    subjectsData.clear();
+    subjectsData = [];
     QuerySnapshot querySnapshot = await _firestore
         .collection('Subjects')
         .getDocuments(); // fetch all subjects
@@ -71,7 +68,7 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getDoctors() async {
-    doctorsData.clear();
+    doctorsData = [];
     QuerySnapshot querySnapshot = await _firestore
         .collection('Doctors')
         .getDocuments(); // fetch all subjects
@@ -102,7 +99,7 @@ class _DeletePageState extends State<DeletePage> {
   }
 
   void getStudents() async {
-    studentsData.clear();
+    studentsData = [];
     QuerySnapshot querySnapshot = await _firestore
         .collection('Students')
         .getDocuments(); // fetch all subjects
@@ -142,15 +139,15 @@ class _DeletePageState extends State<DeletePage> {
     var networkProvider = Provider.of<NetworkProvider>(context);
     if (networkProvider.hasNetworkConnection != null &&
         networkProvider.hasNetworkConnection) {
-      if (subjectsData.isEmpty && !subStop) {
+      if (subjectsData == null && !subStop) {
         subStop = true;
         getSubjects();
       }
-      if (doctorsData.isEmpty && !docStop) {
+      if (doctorsData == null && !docStop) {
         docStop = true;
         getDoctors();
       }
-      if (studentsData.isEmpty && !stdStop) {
+      if (studentsData == null && !stdStop) {
         stdStop = true;
         getStudents();
       }
@@ -179,9 +176,9 @@ class _DeletePageState extends State<DeletePage> {
         ),
       ),
       body: networkProvider.hasNetworkConnection == null ||
-              subjectsData.isEmpty ||
-              doctorsData.isEmpty ||
-              studentsData.isEmpty
+              subjectsData == null ||
+              doctorsData == null ||
+              studentsData == null
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -292,49 +289,53 @@ class _DeletePageState extends State<DeletePage> {
   Widget coursesListView(BuildContext context) {
     return Expanded(
       child: Container(
-        child: ListView.separated(
-          itemBuilder: (context, index) {
-            return ListTile(
-              onTap: () {
-                deleteCourse(index, context);
-              },
-              subtitle: Text(
-                '${subjectsData[index].code}',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontSize: 12,
-                ),
+        child: subjectsData.isEmpty
+            ? Center(
+                child: Text('لا توجد مواد'),
+              )
+            : ListView.separated(
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () {
+                      deleteCourse(index, context);
+                    },
+                    subtitle: Text(
+                      '${subjectsData[index].code}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                    title: Text(
+                      '${subjectsData[index].name}',
+                      textAlign: TextAlign.right,
+                    ),
+                    leading: Text(
+                      'X',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.description,
+                      color: Const.mainColor,
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return Divider(
+                    color: Const.mainColor,
+                    height: ScreenUtil().setHeight(2),
+                    indent: ScreenUtil().setWidth(18),
+                    endIndent: ScreenUtil().setWidth(18),
+                    thickness: 2,
+                  );
+                },
+                itemCount: subjectsData.length,
               ),
-              title: Text(
-                '${subjectsData[index].name}',
-                textAlign: TextAlign.right,
-              ),
-              leading: Text(
-                'X',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              trailing: Icon(
-                Icons.description,
-                color: Const.mainColor,
-              ),
-            );
-          },
-          separatorBuilder: (context, index) {
-            return Divider(
-              color: Const.mainColor,
-              height: ScreenUtil().setHeight(2),
-              indent: ScreenUtil().setWidth(18),
-              endIndent: ScreenUtil().setWidth(18),
-              thickness: 2,
-            );
-          },
-          itemCount: subjectsData.length,
-        ),
       ),
     );
   }
@@ -342,53 +343,57 @@ class _DeletePageState extends State<DeletePage> {
   Widget doctorsListView() {
     return Expanded(
       child: Container(
-        child: ListView.separated(
-          itemBuilder: (context, index) {
-            return ListTile(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => DeleteCourseFromStdOrDoc(
-                      type: 'Doctors',
-                      student: null,
-                      doctor: doctorsData[index],
+        child: doctorsData.isEmpty
+            ? Center(
+                child: Text('لا يوجد دكاترة'),
+              )
+            : ListView.separated(
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => DeleteCourseFromStdOrDoc(
+                            type: 'Doctors',
+                            student: null,
+                            doctor: doctorsData[index],
+                          ),
+                        ),
+                      );
+                    },
+                    title: Text(
+                      '${doctorsData[index].name}',
+                      textAlign: TextAlign.right,
                     ),
-                  ),
-                );
-              },
-              title: Text(
-                '${doctorsData[index].name}',
-                textAlign: TextAlign.right,
+                    subtitle: Text(
+                      '${doctorsData[index].id}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.arrow_left,
+                      color: Const.mainColor,
+                      size: 30,
+                    ),
+                    trailing: Icon(
+                      Icons.settings_input_svideo,
+                      color: Const.mainColor,
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return Divider(
+                    color: Const.mainColor,
+                    height: ScreenUtil().setHeight(2),
+                    indent: ScreenUtil().setWidth(18),
+                    endIndent: ScreenUtil().setWidth(18),
+                    thickness: 2,
+                  );
+                },
+                itemCount: doctorsData.length,
               ),
-              subtitle: Text(
-                '${doctorsData[index].id}',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              leading: Icon(
-                Icons.arrow_left,
-                color: Const.mainColor,
-                size: 30,
-              ),
-              trailing: Icon(
-                Icons.settings_input_svideo,
-                color: Const.mainColor,
-              ),
-            );
-          },
-          separatorBuilder: (context, index) {
-            return Divider(
-              color: Const.mainColor,
-              height: ScreenUtil().setHeight(2),
-              indent: ScreenUtil().setWidth(18),
-              endIndent: ScreenUtil().setWidth(18),
-              thickness: 2,
-            );
-          },
-          itemCount: doctorsData.length,
-        ),
       ),
     );
   }
@@ -396,53 +401,57 @@ class _DeletePageState extends State<DeletePage> {
   Widget studentsListView() {
     return Expanded(
       child: Container(
-        child: ListView.separated(
-          itemBuilder: (context, index) {
-            return ListTile(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => DeleteCourseFromStdOrDoc(
-                      type: 'Students',
-                      student: studentsData[index],
-                      doctor: null,
+        child: studentsData.isEmpty
+            ? Center(
+                child: Text('لا يوجد طلاب'),
+              )
+            : ListView.separated(
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => DeleteCourseFromStdOrDoc(
+                            type: 'Students',
+                            student: studentsData[index],
+                            doctor: null,
+                          ),
+                        ),
+                      );
+                    },
+                    title: Text(
+                      '${studentsData[index].name}',
+                      textAlign: TextAlign.right,
                     ),
-                  ),
-                );
-              },
-              title: Text(
-                '${studentsData[index].name}',
-                textAlign: TextAlign.right,
+                    subtitle: Text(
+                      '${studentsData[index].id}',
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.arrow_left,
+                      color: Const.mainColor,
+                      size: 30,
+                    ),
+                    trailing: Icon(
+                      Icons.person_pin,
+                      color: Const.mainColor,
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) {
+                  return Divider(
+                    color: Const.mainColor,
+                    height: ScreenUtil().setHeight(2),
+                    indent: ScreenUtil().setWidth(18),
+                    endIndent: ScreenUtil().setWidth(18),
+                    thickness: 2,
+                  );
+                },
+                itemCount: studentsData.length,
               ),
-              subtitle: Text(
-                '${studentsData[index].id}',
-                textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontSize: 12,
-                ),
-              ),
-              leading: Icon(
-                Icons.arrow_left,
-                color: Const.mainColor,
-                size: 30,
-              ),
-              trailing: Icon(
-                Icons.person_pin,
-                color: Const.mainColor,
-              ),
-            );
-          },
-          separatorBuilder: (context, index) {
-            return Divider(
-              color: Const.mainColor,
-              height: ScreenUtil().setHeight(2),
-              indent: ScreenUtil().setWidth(18),
-              endIndent: ScreenUtil().setWidth(18),
-              thickness: 2,
-            );
-          },
-          itemCount: studentsData.length,
-        ),
       ),
     );
   }

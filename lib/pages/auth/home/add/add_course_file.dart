@@ -181,16 +181,18 @@ class _AddCourseFileState extends State<AddCourseFile> {
 
       if (allSubjects.documents
           .getRange(0, allSubjects.documents.length)
-          .contains(loadedData[i][0])) {
+          .contains(
+            loadedData[i][0],
+          )) {
         continue;
       } else {
         await firetore
             .collection('Subjects')
             .document(loadedData[i][0])
             .setData({
-          'name': loadedData[i][1],
-          'code': loadedData[i][0],
-          'academicYear': loadedData[i][2],
+          'name': '${loadedData[i][1]}',
+          'code': '${loadedData[i][0]}'.replaceAll(' ', ''),
+          'academicYear': '${loadedData[i][2]}',
           'semester': '',
           'profID': '',
           'profName': '',

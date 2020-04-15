@@ -17,6 +17,13 @@ void main() {
     ),
   );
 
+  SystemChrome.setPreferredOrientations(
+    [
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.portraitUp,
+    ],
+  );
+
   SharedPreferences.getInstance().then(
     (pref) {
       runApp(

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/clips/login_clipper.dart';
 import 'package:admin/models/admins.dart';
@@ -362,6 +360,14 @@ class _CreateAdminAccountState extends State<CreateAdminAccount> {
         return;
       }
 
+      var codeData =
+          await Firestore.instance.collection('Codes').document(code).get();
+      if (codeData.data['adminCode'] != null) {
+        controller.reverse();
+        AppUtils.showToast(msg: 'هذا الكود تم استخدامه بالفعل');
+        return;
+      }
+
       Admin admin = Admin(
         name: name,
         code: code,
@@ -372,6 +378,12 @@ class _CreateAdminAccountState extends State<CreateAdminAccount> {
       await Firestore.instance.collection('Admins').document(username).setData(
             admin.adminToMap(),
           );
+
+      await Firestore.instance.collection('Codes').document(code).updateData(
+        {
+          'adminCode': '$username',
+        },
+      );
 
       controller.reverse();
       _onTap();

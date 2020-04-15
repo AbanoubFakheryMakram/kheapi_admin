@@ -92,6 +92,8 @@ class _AddCourseState extends State<AddCourse> {
                                       return 'مطلوب';
                                     } else if (input.length < 3) {
                                       return 'كود المادة لا يمكن ان يقل عن 3 حروف';
+                                    } else if (input.contains(' ')) {
+                                      return 'كود المادة لا يمكن ان يحتوي علي مسافات';
                                     } else {
                                       return null;
                                     }

@@ -33,7 +33,6 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
   GlobalKey buttonKey = GlobalKey();
 
-  // The ripple animation time (1 second)
   Duration animationDuration = Duration(milliseconds: 500);
   Duration delayTime = Duration(milliseconds: 500);
 

@@ -1,4 +1,3 @@
-import 'package:admin/animations/splash_tap.dart';
 import 'package:admin/models/admins.dart';
 import 'package:admin/models/pointer.dart';
 import 'package:admin/pages/auth/home/add/add_page.dart';
@@ -79,6 +78,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   SharedPreferences.getInstance().then(
                     (pref) {
                       pref.clear();
+                      Pointer.currentAdmin.name = null;
+                      Pointer.currentAdmin.username = null;
                       Navigator.of(context).pop();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(

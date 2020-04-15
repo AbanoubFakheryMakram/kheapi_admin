@@ -29,7 +29,7 @@ class _ReviewPageState extends State<ReviewPage> {
     var networkProvider = Provider.of<NetworkProvider>(context);
     if (networkProvider.hasNetworkConnection != null &&
         networkProvider.hasNetworkConnection) {
-      if (subjects.isEmpty) {
+      if (subjects == null) {
         getSubjects();
       }
     }
@@ -51,128 +51,138 @@ class _ReviewPageState extends State<ReviewPage> {
               child: CircularProgressIndicator(),
             )
           : networkProvider.hasNetworkConnection
-              ? Column(
-                  children: <Widget>[
-                    Hero(
-                      tag: 'assets/images/review.png',
-                      child: Image.asset('assets/images/review.png'),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(15),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ScreenUtil().setWidth(18),
-                      ),
-                      child: MyFadeAnimation(
-                        delayinseconds: 1,
-                        child: MyDropDownFormField(
-                          titleStyle: TextStyle(
-                            color: Const.mainColor,
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Const.mainColor,
-                            ),
-                          ),
-                          titleText: 'المواد',
-                          hintText: 'اختر المادة',
-                          itemStyle: TextStyle(
-                            color: Colors.black,
-                          ),
-                          value: subject,
-                          onSaved: (value) {
-                            handleSelection(value);
-                          },
-                          onChanged: (value) {
-                            handleSelection(value);
-                          },
-                          dataSource: subjects,
-                          textField: 'display',
-                          valueField: 'value',
+              ? subjects.isEmpty
+                  ? Column(
+                      children: <Widget>[
+                        Image.asset('assets/images/review.png'),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(15),
                         ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(20),
-                    ),
-                    MyFadeAnimation(
-                      delayinseconds: 1.5,
-                      child: Container(
-                        margin: EdgeInsets.symmetric(
-                            horizontal: ScreenUtil().setWidth(18)),
-                        width: double.infinity,
-                        height: ScreenUtil().setHeight(40),
-                        decoration: BoxDecoration(
-                          color: Const.mainColor,
-                          borderRadius: BorderRadius.circular(30),
+                        Text(
+                          'لا توجد مواد',
+                          style: TextStyle(fontSize: 18),
                         ),
-                        child: Center(
-                          child: Text(
-                            doctorName.isEmpty
-                                ? 'لم يتم تعيين مشرف لهذه المادة بعد'
-                                : doctorName,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
+                      ],
+                    )
+                  : Column(
+                      children: <Widget>[
+                        Image.asset('assets/images/review.png'),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(15),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: ScreenUtil().setWidth(18),
                           ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(15),
-                    ),
-                    subject.isEmpty
-                        ? SizedBox.shrink()
-                        : students.isEmpty && !searching
-                            ? Container(
-                                height: ScreenUtil().setHeight(100),
-                                child: Center(
-                                  child: Text(
-                                    'لا يوجد طلاب تم تسجيلهم لهذا المقرر',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.black),
-                                  ),
+                          child: MyFadeAnimation(
+                            delayinseconds: 1,
+                            child: MyDropDownFormField(
+                              titleStyle: TextStyle(
+                                color: Const.mainColor,
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Const.mainColor,
                                 ),
-                              )
-                            : students.isEmpty && searching
+                              ),
+                              titleText: 'المواد',
+                              hintText: 'اختر المادة',
+                              itemStyle: TextStyle(
+                                color: Colors.black,
+                              ),
+                              value: subject,
+                              onSaved: (value) {
+                                handleSelection(value);
+                              },
+                              onChanged: (value) {
+                                handleSelection(value);
+                              },
+                              dataSource: subjects,
+                              textField: 'display',
+                              valueField: 'value',
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(20),
+                        ),
+                        MyFadeAnimation(
+                          delayinseconds: 1.5,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(
+                                horizontal: ScreenUtil().setWidth(18)),
+                            width: double.infinity,
+                            height: ScreenUtil().setHeight(40),
+                            decoration: BoxDecoration(
+                              color: Const.mainColor,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Center(
+                              child: Text(
+                                doctorName.isEmpty
+                                    ? 'لم يتم تعيين مشرف لهذه المادة بعد'
+                                    : doctorName,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: ScreenUtil().setHeight(15),
+                        ),
+                        subject.isEmpty
+                            ? SizedBox.shrink()
+                            : students.isEmpty && !searching
                                 ? Container(
                                     height: ScreenUtil().setHeight(100),
                                     child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                : Expanded(
-                                    child: Container(
-                                      width: double.infinity,
-                                      child: ListView.builder(
-                                        itemBuilder: (context, index) {
-                                          return SlideInRight(
-                                            child: ListTile(
-                                              onTap: () {},
-                                              trailing: Icon(
-                                                Icons.verified_user,
-                                                color: Const.mainColor,
-                                              ),
-                                              title: Text(
-                                                students[index],
-                                                textAlign: TextAlign.right,
-                                              ),
-                                              leading: Icon(
-                                                Icons.wifi_tethering,
-                                                color: Colors.amber,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        itemCount: students.length,
+                                      child: Text(
+                                        'لا يوجد طلاب تم تسجيلهم لهذا المقرر',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.black),
                                       ),
                                     ),
                                   )
-                  ],
-                )
+                                : students.isEmpty && searching
+                                    ? Container(
+                                        height: ScreenUtil().setHeight(100),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                      )
+                                    : Expanded(
+                                        child: Container(
+                                          width: double.infinity,
+                                          child: ListView.builder(
+                                            itemBuilder: (context, index) {
+                                              return SlideInRight(
+                                                child: ListTile(
+                                                  onTap: () {},
+                                                  trailing: Icon(
+                                                    Icons.verified_user,
+                                                    color: Const.mainColor,
+                                                  ),
+                                                  title: Text(
+                                                    students[index],
+                                                    textAlign: TextAlign.right,
+                                                  ),
+                                                  leading: Icon(
+                                                    Icons.wifi_tethering,
+                                                    color: Colors.amber,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            itemCount: students.length,
+                                          ),
+                                        ),
+                                      )
+                      ],
+                    )
               : Container(
                   color: Color(0xffF2F2F2),
                   height: MediaQuery.of(context).size.height,
@@ -196,7 +206,7 @@ class _ReviewPageState extends State<ReviewPage> {
   }
 
   void getSubjects() async {
-    subjects.clear();
+    subjects = [];
     QuerySnapshot querySnapshot = await _firestore
         .collection('Subjects')
         .getDocuments(); // fetch all subjects

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:admin/pages/auth/home/add/add_course_file.dart';
 import 'package:admin/pages/auth/home/add/add_doctors_file.dart';
+import 'package:admin/pages/auth/home/add/add_file_info.dart';
 import 'package:admin/pages/auth/home/add/add_stds_file.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
@@ -38,6 +39,18 @@ class _AddFilesPageState extends State<AddFilesPage> {
     var networkProvider = Provider.of<NetworkProvider>(context);
     return Scaffold(
       appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.help_outline),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => AddFileInfo(),
+                ),
+              );
+            },
+          ),
+        ],
         backgroundColor: Const.mainColor,
         title: Text(
           'اضافة',
@@ -152,7 +165,7 @@ class _AddFilesPageState extends State<AddFilesPage> {
                         },
                         child: Center(
                           child: Text(
-                            'اضافة اساتذة',
+                            'اضافة دكاترة',
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                         ),
