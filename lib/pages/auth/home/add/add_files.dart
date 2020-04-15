@@ -144,8 +144,8 @@ class _AddFilesPageState extends State<AddFilesPage> {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => AddDoctorsFile(
-                                  //  selectedFile: selectedFile,
-                                  ),
+                                selectedFile: selectedFile,
+                              ),
                             ),
                           );
                           selectedFile = null;

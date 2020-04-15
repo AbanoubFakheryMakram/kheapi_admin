@@ -2,6 +2,7 @@ import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/clips/login_clipper.dart';
 import 'package:admin/models/admins.dart';
 import 'package:admin/pages/auth/forgot_password.dart';
+import 'package:admin/pages/auth/home/admin_home.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
 import 'package:admin/utils/firebase_methods.dart';
@@ -414,7 +415,7 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.of(context)
         .pushReplacement(
           PageTransition(
-            child: null,
+            child: AdminHomePage(),
             type: PageTransitionType.fade,
           ),
         )
