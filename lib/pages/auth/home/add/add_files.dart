@@ -18,13 +18,12 @@ class AddFilesPage extends StatefulWidget {
 }
 
 class _AddFilesPageState extends State<AddFilesPage> {
-  File selectedFile;
+  File selectedFile = File('');
 
   Future<void> pickCSVFile() async {
     try {
       selectedFile = await FilePicker.getFile(
-        type: FileType.custom,
-        fileExtension: "csv",
+        type: FileType.any,
       );
 
       setState(() {});
@@ -129,7 +128,6 @@ class _AddFilesPageState extends State<AddFilesPage> {
                               ),
                             ),
                           );
-                          selectedFile = null;
                         },
                         child: Center(
                           child: Text(
@@ -161,7 +159,6 @@ class _AddFilesPageState extends State<AddFilesPage> {
                               ),
                             ),
                           );
-                          selectedFile = null;
                         },
                         child: Center(
                           child: Text(
@@ -193,5 +190,11 @@ class _AddFilesPageState extends State<AddFilesPage> {
                   ),
                 ),
     );
+  }
+
+  @override
+  void dispose() {
+    selectedFile = null;
+    super.dispose();
   }
 }

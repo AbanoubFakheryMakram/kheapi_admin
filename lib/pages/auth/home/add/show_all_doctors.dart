@@ -40,9 +40,10 @@ class ShowAllDoctors extends StatelessWidget {
                               textAlign: TextAlign.right,
                             ),
                             subtitle: Text(
-                              '${currentDoctor.data['id']}',
+                              '${currentDoctor.data['id']}  :كود',
                               textAlign: TextAlign.right,
                             ),
+                            trailing: Icon(Icons.person_outline),
                             leading: currentDoctor.data['ssn'] == ''
                                 ? Icon(
                                     Icons.error_outline,

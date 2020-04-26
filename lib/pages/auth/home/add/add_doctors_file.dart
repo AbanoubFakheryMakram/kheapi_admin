@@ -6,7 +6,6 @@ import 'package:admin/utils/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -32,7 +31,7 @@ class _AddDoctorsFileState extends State<AddDoctorsFile> {
   }
 
   loadCSVFile() async {
-    final data = await rootBundle.loadString('assets/csv/doctors.csv');
+    final data = await widget.selectedFile.readAsString();
     loadedData = CsvToListConverter().convert(data);
     if (mounted) setState(() {});
   }
@@ -213,7 +212,8 @@ class _AddDoctorsFileState extends State<AddDoctorsFile> {
       // loop thought each subject
       for (int j = 0; j < allSubjects.documents.length; j++) {
         // if current subject's code == the current doctor's subject code then register(bind) doctor with this subject
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 1][0]}') {
+        if ('${loadedData[i + 1][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 1][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -224,7 +224,8 @@ class _AddDoctorsFileState extends State<AddDoctorsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 2][0]}') {
+        if ('${loadedData[i + 2][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 2][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -235,7 +236,8 @@ class _AddDoctorsFileState extends State<AddDoctorsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 3][0]}') {
+        if ('${loadedData[i + 3][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 3][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)

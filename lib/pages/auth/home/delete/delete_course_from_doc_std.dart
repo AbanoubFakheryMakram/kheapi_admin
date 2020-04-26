@@ -63,19 +63,29 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
           IconButton(
             icon: Icon(Icons.remove_circle),
             onPressed: () {
-              AppUtils.showDialog(
-                context: context,
-                title: 'تحذير',
-                negativeText: 'لا',
-                onNegativeButtonPressed: () {
-                  Navigator.of(context).pop();
-                },
-                positiveText: 'نعم',
-                onPositiveButtonPressed: () {
-                  deleteAll();
-                },
-                contentText: 'هل تريد مسح جميع المواد ؟',
-              );
+              if (widget.student != null) {
+                if (studentCourses.length == 0) {
+                  AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
+                  return;
+                }
+              } else if (doctorCourses.length == 0) {
+                AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
+                return;
+              } else {
+                AppUtils.showDialog(
+                  context: context,
+                  title: 'تحذير',
+                  negativeText: 'لا',
+                  onNegativeButtonPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  positiveText: 'نعم',
+                  onPositiveButtonPressed: () {
+                    deleteAll();
+                  },
+                  contentText: 'هل تريد مسح جميع المواد ؟',
+                );
+              }
             },
           ),
         ],

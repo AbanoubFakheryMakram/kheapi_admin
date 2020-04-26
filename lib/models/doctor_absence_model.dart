@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class DoctorAbsenceModel {
   String std_name;
   String std_id;

@@ -21,11 +21,14 @@ class _AddFileInfoState extends State<AddFileInfo> {
           ),
         ),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            SizedBox(
+              height: ScreenUtil().setHeight(15),
+            ),
             Text(
               'ملاحظات كتابة ملف البيانات',
               style: TextStyle(
@@ -34,7 +37,7 @@ class _AddFileInfoState extends State<AddFileInfo> {
               ),
             ),
             Text(
-              '1- امتداد الملف يجب ان يكون .csv',
+              '1- امتداد الملف يجب ان يكون .CSV',
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
             ),
@@ -44,12 +47,17 @@ class _AddFileInfoState extends State<AddFileInfo> {
               textDirection: TextDirection.rtl,
             ),
             Text(
-              '3- لا يجب ان يتم ترك صف خالي',
+              '3- لا يجب ان يتم ترك صف كاملا خالي',
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
             ),
             Text(
-              '4- شكل البيانات عند انشاء ملف للمواد يجب ان يكون بنفس النسق',
+              '4- ينصح بادخال المواد اولا ثم الطلاب والدكاترة',
+              textAlign: TextAlign.right,
+              textDirection: TextDirection.rtl,
+            ),
+            Text(
+              '5- شكل البيانات عند انشاء ملف للمواد يجب ان يكون بنفس النسق',
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
             ),
@@ -94,9 +102,19 @@ class _AddFileInfoState extends State<AddFileInfo> {
               height: ScreenUtil().setHeight(15),
             ),
             Text(
-              '5- شكل البيانات عند انشاء ملف للطلاب يجب ان يكون بنفس النسق',
+              '6- شكل البيانات عند انشاء ملف للطلاب يجب ان يكون بنفس النسق',
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
+            ),
+            SizedBox(
+              height: ScreenUtil().setHeight(5),
+            ),
+            Image.asset(
+              'assets/images/std_sample.png',
+              width: MediaQuery.of(context).size.width * .9,
+            ),
+            SizedBox(
+              height: ScreenUtil().setHeight(5),
             ),
             Text(
               '*  مواد الطالب لا تقل عن 7 مواد او تزيد عنه',
@@ -107,14 +125,27 @@ class _AddFileInfoState extends State<AddFileInfo> {
               height: ScreenUtil().setHeight(15),
             ),
             Text(
-              '6- شكل البيانات عند انشاء ملف للطلاب يجب ان يكون بنفس النسق',
+              '7- شكل البيانات عند انشاء ملف للطلاب يجب ان يكون بنفس النسق',
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
+            ),
+            SizedBox(
+              height: ScreenUtil().setHeight(5),
+            ),
+            Image.asset(
+              'assets/images/doc_sample.png',
+              width: MediaQuery.of(context).size.width * .9,
+            ),
+            SizedBox(
+              height: ScreenUtil().setHeight(5),
             ),
             Text(
               '* مواد الدكتور لا تقل عن 3 مواد او تزيد عنه',
               textAlign: TextAlign.right,
               textDirection: TextDirection.rtl,
+            ),
+            SizedBox(
+              height: ScreenUtil().setHeight(15),
             ),
           ],
         ),

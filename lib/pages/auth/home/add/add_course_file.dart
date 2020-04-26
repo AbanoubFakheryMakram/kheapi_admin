@@ -31,7 +31,7 @@ class _AddCourseFileState extends State<AddCourseFile> {
   }
 
   loadCSVFile() async {
-    final data = widget.selectedFile.path;
+    final data = await widget.selectedFile.readAsString();
     loadedData = CsvToListConverter().convert(data);
     if (mounted) setState(() {});
   }

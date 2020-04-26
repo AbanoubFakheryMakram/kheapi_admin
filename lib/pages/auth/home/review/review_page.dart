@@ -15,7 +15,7 @@ class ReviewPage extends StatefulWidget {
 }
 
 class _ReviewPageState extends State<ReviewPage> {
-  List<Map<String, String>> subjects = [];
+  List<Map<String, String>> subjects;
   List<Subject> subjectsData = [];
   List<String> students;
   final Firestore _firestore = Firestore.instance;
@@ -51,18 +51,9 @@ class _ReviewPageState extends State<ReviewPage> {
               child: CircularProgressIndicator(),
             )
           : networkProvider.hasNetworkConnection
-              ? subjects.isEmpty
-                  ? Column(
-                      children: <Widget>[
-                        Image.asset('assets/images/review.png'),
-                        SizedBox(
-                          height: ScreenUtil().setHeight(15),
-                        ),
-                        Text(
-                          'لا توجد مواد',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ],
+              ? subjects == null
+                  ? Center(
+                      child: CircularProgressIndicator(),
                     )
                   : Column(
                       children: <Widget>[

@@ -6,7 +6,6 @@ import 'package:admin/utils/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
 
@@ -28,11 +27,14 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
   void initState() {
     super.initState();
 
+    if (widget.selectedFile == null) {
+      return;
+    }
     loadCSVFile();
   }
 
   loadCSVFile() async {
-    final data = await rootBundle.loadString('assets/csv/std.csv');
+    final data = await widget.selectedFile.readAsString();
     loadedData = CsvToListConverter().convert(data);
     if (mounted) setState(() {});
   }
@@ -47,18 +49,25 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
       showLogs: false,
     );
     pr.style(
-        message: 'Uploading data...',
-        borderRadius: 10.0,
-        backgroundColor: Colors.white,
-        progressWidget: CircularProgressIndicator(),
-        elevation: 10.0,
-        insetAnimCurve: Curves.easeInOut,
-        progress: 0.0,
-        maxProgress: 100.0,
-        progressTextStyle: TextStyle(
-            color: Colors.black, fontSize: 13.0, fontWeight: FontWeight.w400),
-        messageTextStyle: TextStyle(
-            color: Colors.black, fontSize: 19.0, fontWeight: FontWeight.w600));
+      message: 'Uploading data...',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: CircularProgressIndicator(),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+      progress: 0.0,
+      maxProgress: 100.0,
+      progressTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 13.0,
+        fontWeight: FontWeight.w400,
+      ),
+      messageTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 19.0,
+        fontWeight: FontWeight.w600,
+      ),
+    );
     hideLoadingHud(context);
 
     return Scaffold(
@@ -201,7 +210,8 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
       // loop thought each subject
       for (int j = 0; j < allSubjects.documents.length; j++) {
         // if current subject's code == the current doctor's subject code then register(bind) doctor with this subject
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 1][0]}') {
+        if ('${loadedData[i + 1][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 1][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -217,7 +227,8 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 2][0]}') {
+        if ('${loadedData[i + 2][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 2][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -233,7 +244,8 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 3][0]}') {
+        if ('${loadedData[i + 3][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 3][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -249,7 +261,8 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 4][0]}') {
+        if ('${loadedData[i + 4][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 4][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -265,7 +278,8 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 5][0]}') {
+        if ('${loadedData[i + 5][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 5][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -281,7 +295,8 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 6][0]}') {
+        if ('${loadedData[i + 6][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 6][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
@@ -297,7 +312,8 @@ class _AddStudentsFileState extends State<AddStudentsFile> {
             },
           );
         }
-        if (allSubjects.documents[j].documentID == '${loadedData[i + 7][0]}') {
+        if ('${loadedData[i + 7][0]}' != null &&
+            allSubjects.documents[j].documentID == '${loadedData[i + 7][0]}') {
           await Firestore.instance
               .collection('Subjects')
               .document(allSubjects.documents[j].documentID)
