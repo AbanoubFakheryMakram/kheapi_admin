@@ -1,6 +1,6 @@
 import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/models/student.dart';
-import 'package:admin/pages/auth/home/add/show_add_stds.dart';
+import 'package:admin/pages/auth/home/add/show_all_stds.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -31,6 +31,8 @@ class _AddStdState extends State<AddStd> {
 
   bool showUnSelectedCoursesError = false;
 
+  bool loaded = false;
+
   TextEditingController stdNameController = TextEditingController();
   TextEditingController stdCodeController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -44,7 +46,7 @@ class _AddStdState extends State<AddStd> {
     var networkProvider = Provider.of<NetworkProvider>(context);
     if (networkProvider.hasNetworkConnection != null &&
         networkProvider.hasNetworkConnection &&
-        subjects.isEmpty) {
+        !loaded) {
       getSubjects();
     }
     return Scaffold(
@@ -60,282 +62,289 @@ class _AddStdState extends State<AddStd> {
           ),
         ),
       ),
-      body: networkProvider.hasNetworkConnection == null || subjects.isEmpty
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : networkProvider.hasNetworkConnection
-              ? SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      Image.asset('assets/images/add.png'),
-                      Form(
-                        key: _formKey,
-                        child: Padding(
-                          padding: EdgeInsets.all(ScreenUtil().setWidth(16)),
-                          child: Column(
-                            children: <Widget>[
-                              MyFadeAnimation(
-                                delayinseconds: 1,
-                                child: buildField(
-                                  hint: 'اسم الطالب',
-                                  controller: stdNameController,
-                                  onChange: (String input) {
-                                    courseName = input;
-                                  },
-                                  validator: (String input) {
-                                    if (input.isEmpty) {
-                                      return 'مطلوب';
-                                    } else if (input.length < 3) {
-                                      return 'اسم الطالب لا يمكن ان يقل عن 3 حروف';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  keyboardType: TextInputType.text,
-                                ),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 1.5,
-                                child: buildField(
-                                  controller: stdCodeController,
-                                  hint: 'كود الطالب (اسم المستخدم)',
-                                  onChange: (String input) {
-                                    courseCode = input;
-                                  },
-                                  validator: (String input) {
-                                    if (input.isEmpty) {
-                                      return 'مطلوب';
-                                    } else if (input.length < 6) {
-                                      return 'كود الطالب لا يمكن ان يقل عن 6 ارقام';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 2,
-                                child: buildField(
-                                  hint: 'كلمة المرور',
-                                  controller: passwordController,
-                                  onChange: (String input) {
-                                    doctorName = input;
-                                  },
-                                  validator: (String input) {
-                                    if (input.isEmpty) {
-                                      return 'مطلوب';
-                                    } else if (input.length < 6) {
-                                      return 'كلمة المرور لا يمكن ان يقل عن 6 حروف';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  keyboardType: TextInputType.text,
-                                ),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 2.5,
-                                child: buildField(
-                                  hint: 'المستوي',
-                                  controller: levelController,
-                                  onChange: (String input) {
-                                    doctorCode = input;
-                                  },
-                                  validator: (String input) {
-                                    if (input.isEmpty) {
-                                      return 'مطلوب';
-                                    } else if (num.parse(input) > 4) {
-                                      return 'لا يوجد مستوي اكبر من المستوي الرابع';
-                                    } else if (num.parse(input) < 1) {
-                                      return 'لا يوجد مستوي اقل من المستوي الاول';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 3,
-                                child: buildField(
-                                  hint: 'الايميل (اختياري)',
-                                  controller: emailController,
-                                  validator: (String input) {
-                                    if (input.isNotEmpty) {
-                                      if (!MyPatterns.isEmailValid(input)) {
-                                        return 'ايميل غير صحيح';
-                                      } else {
-                                        return null;
-                                      }
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  onChange: (String input) {
-                                    doctorCode = input;
-                                  },
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 3.5,
-                                child: buildField(
-                                  hint: 'رقم التليفون (اختياري)',
-                                  controller: phoneController,
-                                  onChange: (String input) {
-                                    doctorCode = input;
-                                  },
-                                  validator: (String input) {
-                                    if (input.isNotEmpty) {
-                                      if (!MyPatterns.isPhoneValid(input)) {
-                                        return 'رقم التليفون غير صحيح';
-                                      } else {
-                                        return null;
-                                      }
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 4,
-                                child: buildField(
-                                  hint: 'رقم البطاقة',
-                                  controller: identityNumberController,
-                                  onChange: (String input) {
-                                    doctorCode = input;
-                                  },
-                                  validator: (String input) {
-                                    if (input.isEmpty) {
-                                      return 'مطلوب';
-                                    } else if (!MyPatterns
-                                        .isIdentityNumberValid(input)) {
-                                      return 'رقم غير صحيح';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  keyboardType: TextInputType.number,
-                                ),
-                              ),
-                              SizedBox(
-                                height: ScreenUtil().setHeight(20),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 4.5,
-                                child: MultiSelectFormField(
-                                  titleText: 'المقررات',
-                                  autovalidate: showUnSelectedCoursesError,
-                                  validator: (value) {
-                                    if (value == null || value.length == 0) {
-                                      return 'من فضلك قم بتحديد المقررات';
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  dataSource: subjects,
-                                  textField: 'display',
-                                  valueField: 'value',
-                                  okButtonLabel: 'تم',
-                                  cancelButtonLabel: 'الغاء',
-                                  // required: true,
-                                  hintText: 'من فضلك قم بتحديد المقررات',
-                                  value: selected,
-                                  onSaved: (value) {
-                                    if (value == null) return;
-                                    selected = value;
-                                    showUnSelectedCoursesError = false;
-                                    setState(() {});
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                height: ScreenUtil().setHeight(20),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 5,
-                                child: Container(
-                                  margin: EdgeInsets.only(
-                                    left: ScreenUtil().setWidth(20),
-                                    right: ScreenUtil().setWidth(20),
-                                    bottom: ScreenUtil().setWidth(30),
-                                  ),
-                                  height: ScreenUtil().setHeight(48),
-                                  child: ProgressButton(
-                                    color: Const.mainColor,
-                                    child: Text(
-                                      'اضافة',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Tajawal',
-                                      ),
-                                    ),
-                                    onPressed:
-                                        (AnimationController controller) {
-                                      validateAndSave(controller);
-                                    },
-                                  ),
-                                ),
-                              ),
-                              MyFadeAnimation(
-                                delayinseconds: 5.5,
-                                child: Container(
-                                  margin: EdgeInsets.only(
-                                    left: ScreenUtil().setWidth(20),
-                                    right: ScreenUtil().setWidth(20),
-                                    bottom: ScreenUtil().setWidth(30),
-                                  ),
-                                  height: ScreenUtil().setHeight(48),
-                                  child: ProgressButton(
-                                    color: Const.mainColor,
-                                    child: Text(
-                                      'عرض كل الطلاب',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Tajawal',
-                                      ),
-                                    ),
-                                    onPressed:
-                                        (AnimationController controller) {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => ShowAllStudents(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+      body: networkProvider.hasNetworkConnection != null &&
+              networkProvider.hasNetworkConnection
+          ? subjects.isEmpty && !loaded
+              ? Center(
+                  child: CircularProgressIndicator(),
                 )
-              : Container(
-                  color: Color(0xffF2F2F2),
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(
-                    children: <Widget>[
-                      Image.asset(
-                        'assets/images/no_internet_connection.jpg',
+              : subjects.isEmpty && loaded
+                  ? Center(
+                      child: Text('قم باضافة مواد اولا'),
+                    )
+                  : SingleChildScrollView(
+                      child: Column(
+                        children: <Widget>[
+                          Image.asset('assets/images/add.png'),
+                          Form(
+                            key: _formKey,
+                            child: Padding(
+                              padding:
+                                  EdgeInsets.all(ScreenUtil().setWidth(16)),
+                              child: Column(
+                                children: <Widget>[
+                                  MyFadeAnimation(
+                                    delayinseconds: 1,
+                                    child: buildField(
+                                      hint: 'اسم الطالب',
+                                      controller: stdNameController,
+                                      onChange: (String input) {
+                                        courseName = input;
+                                      },
+                                      validator: (String input) {
+                                        if (input.isEmpty) {
+                                          return 'مطلوب';
+                                        } else if (input.length < 3) {
+                                          return 'اسم الطالب لا يمكن ان يقل عن 3 حروف';
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      keyboardType: TextInputType.text,
+                                    ),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 1.5,
+                                    child: buildField(
+                                      controller: stdCodeController,
+                                      hint: 'كود الطالب (اسم المستخدم)',
+                                      onChange: (String input) {
+                                        courseCode = input;
+                                      },
+                                      validator: (String input) {
+                                        if (input.isEmpty) {
+                                          return 'مطلوب';
+                                        } else if (input.length < 6) {
+                                          return 'كود الطالب لا يمكن ان يقل عن 6 ارقام';
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 2,
+                                    child: buildField(
+                                      hint: 'كلمة المرور',
+                                      controller: passwordController,
+                                      onChange: (String input) {
+                                        doctorName = input;
+                                      },
+                                      validator: (String input) {
+                                        if (input.isEmpty) {
+                                          return 'مطلوب';
+                                        } else if (input.length < 6) {
+                                          return 'كلمة المرور لا يمكن ان يقل عن 6 حروف';
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      keyboardType: TextInputType.text,
+                                    ),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 2.5,
+                                    child: buildField(
+                                      hint: 'المستوي',
+                                      controller: levelController,
+                                      onChange: (String input) {
+                                        doctorCode = input;
+                                      },
+                                      validator: (String input) {
+                                        if (input.isEmpty) {
+                                          return 'مطلوب';
+                                        } else if (num.parse(input) > 4) {
+                                          return 'لا يوجد مستوي اكبر من المستوي الرابع';
+                                        } else if (num.parse(input) < 1) {
+                                          return 'لا يوجد مستوي اقل من المستوي الاول';
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 3,
+                                    child: buildField(
+                                      hint: 'الايميل (اختياري)',
+                                      controller: emailController,
+                                      validator: (String input) {
+                                        if (input.isNotEmpty) {
+                                          if (!MyPatterns.isEmailValid(input)) {
+                                            return 'ايميل غير صحيح';
+                                          } else {
+                                            return null;
+                                          }
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      onChange: (String input) {
+                                        doctorCode = input;
+                                      },
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 3.5,
+                                    child: buildField(
+                                      hint: 'رقم التليفون (اختياري)',
+                                      controller: phoneController,
+                                      onChange: (String input) {
+                                        doctorCode = input;
+                                      },
+                                      validator: (String input) {
+                                        if (input.isNotEmpty) {
+                                          if (!MyPatterns.isPhoneValid(input)) {
+                                            return 'رقم التليفون غير صحيح';
+                                          } else {
+                                            return null;
+                                          }
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 4,
+                                    child: buildField(
+                                      hint: 'رقم البطاقة',
+                                      controller: identityNumberController,
+                                      onChange: (String input) {
+                                        doctorCode = input;
+                                      },
+                                      validator: (String input) {
+                                        if (input.isEmpty) {
+                                          return 'مطلوب';
+                                        } else if (!MyPatterns
+                                            .isIdentityNumberValid(input)) {
+                                          return 'رقم غير صحيح';
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      keyboardType: TextInputType.number,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: ScreenUtil().setHeight(20),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 4.5,
+                                    child: MultiSelectFormField(
+                                      titleText: 'المقررات',
+                                      autovalidate: showUnSelectedCoursesError,
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.length == 0) {
+                                          return 'من فضلك قم بتحديد المقررات';
+                                        } else {
+                                          return null;
+                                        }
+                                      },
+                                      dataSource: subjects,
+                                      textField: 'display',
+                                      valueField: 'value',
+                                      okButtonLabel: 'تم',
+                                      cancelButtonLabel: 'الغاء',
+                                      // required: true,
+                                      hintText: 'من فضلك قم بتحديد المقررات',
+                                      value: selected,
+                                      onSaved: (value) {
+                                        if (value == null) return;
+                                        selected = value;
+                                        showUnSelectedCoursesError = false;
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: ScreenUtil().setHeight(20),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 5,
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                        left: ScreenUtil().setWidth(20),
+                                        right: ScreenUtil().setWidth(20),
+                                        bottom: ScreenUtil().setWidth(30),
+                                      ),
+                                      height: ScreenUtil().setHeight(48),
+                                      child: ProgressButton(
+                                        color: Const.mainColor,
+                                        child: Text(
+                                          'اضافة',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Tajawal',
+                                          ),
+                                        ),
+                                        onPressed:
+                                            (AnimationController controller) {
+                                          validateAndSave(controller);
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                  MyFadeAnimation(
+                                    delayinseconds: 5.5,
+                                    child: Container(
+                                      margin: EdgeInsets.only(
+                                        left: ScreenUtil().setWidth(20),
+                                        right: ScreenUtil().setWidth(20),
+                                        bottom: ScreenUtil().setWidth(30),
+                                      ),
+                                      height: ScreenUtil().setHeight(48),
+                                      child: ProgressButton(
+                                        color: Const.mainColor,
+                                        child: Text(
+                                          'عرض كل الطلاب',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Tajawal',
+                                          ),
+                                        ),
+                                        onPressed:
+                                            (AnimationController controller) {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => ShowAllStudents(),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        'لا يوجد اتصال بالانترنت',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 22,
-                        ),
-                      ),
-                    ],
+                    )
+          : Container(
+              color: Color(0xffF2F2F2),
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: <Widget>[
+                  Image.asset(
+                    'assets/images/no_internet_connection.jpg',
                   ),
-                ),
+                  Text(
+                    'لا يوجد اتصال بالانترنت',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 22,
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -474,6 +483,7 @@ class _AddStdState extends State<AddStd> {
       });
     }
 
+    loaded = true;
     setState(() {});
   }
 }

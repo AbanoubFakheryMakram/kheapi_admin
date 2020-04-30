@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/clips/login_clipper.dart';
 import 'package:admin/models/admins.dart';
@@ -375,19 +377,34 @@ class _CreateAdminAccountState extends State<CreateAdminAccount> {
         username: username,
       );
 
+      // create new admin
       await Firestore.instance.collection('Admins').document(username).setData(
             admin.adminToMap(),
           );
 
+      // register code for current admin
       await Firestore.instance.collection('Codes').document(code).updateData(
         {
           'adminCode': '$username',
         },
       );
 
+      // create new code
+      String newCode = '${getRandomCode()}';
+      await Firestore.instance.collection('Codes').document(newCode).setData(
+        {
+          'code': newCode,
+        },
+      );
+
       controller.reverse();
       _onTap();
     }
+  }
+
+  int getRandomCode() {
+    Random random = Random();
+    return random.nextInt(100000) + 1000;
   }
 
   void _onTap() {

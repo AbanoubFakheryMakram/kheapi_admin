@@ -7,6 +7,7 @@ Widget buildCards({
   String imageAsset,
   String text,
   Function onTap,
+  BoxFit boxFit,
 }) {
   return Splash(
     onTap: onTap,
@@ -37,7 +38,7 @@ Widget buildCards({
             tag: imageAsset,
             child: Image.asset(
               imageAsset,
-              fit: BoxFit.cover,
+              fit: boxFit ?? BoxFit.cover,
               height: ScreenUtil().setHeight(
                 130,
               ),

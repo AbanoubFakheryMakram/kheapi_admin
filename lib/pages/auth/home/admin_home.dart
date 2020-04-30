@@ -2,6 +2,7 @@ import 'package:admin/models/admins.dart';
 import 'package:admin/models/pointer.dart';
 import 'package:admin/pages/auth/home/add/add_page.dart';
 import 'package:admin/pages/auth/home/delete/delete_page.dart';
+import 'package:admin/pages/auth/home/edit/edit_page.dart';
 import 'package:admin/pages/auth/home/review/review_page.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
@@ -78,8 +79,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   SharedPreferences.getInstance().then(
                     (pref) {
                       pref.clear();
-                      Pointer.currentAdmin.name = null;
-                      Pointer.currentAdmin.username = null;
+                      Pointer.currentAdmin = null;
                       Navigator.of(context).pop();
                       Navigator.of(context).pushReplacement(
                         MaterialPageRoute(
@@ -201,6 +201,25 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       PageTransition(
                                         child: ReviewPage(),
                                         type: PageTransitionType.scale,
+                                      ),
+                                    );
+                                  },
+                          ),
+                        ),
+                        FadeInLeft(
+                          child: buildCards(
+                            boxFit: BoxFit.fill,
+                            imageAsset: 'assets/images/edit.jpg',
+                            text: 'تعديل',
+                            onTap: Pointer.currentAdmin.name == null ||
+                                    Pointer.currentAdmin.name.isEmpty
+                                ? null
+                                : () {
+                                    Navigator.of(context).push(
+                                      PageTransition(
+                                        child: EditPage(),
+                                        type: PageTransitionType
+                                            .leftToRightWithFade,
                                       ),
                                     );
                                   },

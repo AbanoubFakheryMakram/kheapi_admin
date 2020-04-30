@@ -14,10 +14,15 @@ class DeleteCourseFromStdOrDoc extends StatefulWidget {
   final String type;
   final Student student;
   final Doctor doctor;
+  final String backTo;
 
-  const DeleteCourseFromStdOrDoc(
-      {Key key, this.type, this.doctor, this.student})
-      : super(key: key);
+  const DeleteCourseFromStdOrDoc({
+    Key key,
+    @required this.type,
+    @required this.doctor,
+    @required this.student,
+    @required this.backTo,
+  }) : super(key: key);
 
   @override
   _DeleteCourseFromStdOrDocState createState() =>
@@ -30,11 +35,26 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
 
   bool fetched = false;
 
+  getDoctorSubjects() async {
+    var doctorDoc = await Firestore.instance
+        .collection('Doctors')
+        .document(widget.doctor.id)
+        .get();
+    doctorCourses = doctorDoc.data['subjects'] != null
+        ? List.from(doctorDoc.data['subjects'])
+        : [];
+
+    print('doctors subject length: ${doctorCourses.length}');
+    setState(() {
+      fetched = true;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
 
-    doctorCourses = widget.doctor == null ? null : widget.doctor.subjects;
+    widget.doctor == null ? null : getDoctorSubjects();
   }
 
   @override
@@ -45,187 +65,211 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
         networkProvider.hasNetworkConnection &&
         widget.student != null &&
         !fetched) {
-      fetched = true;
       getStudentCourses();
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => DeletePage(),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => widget.backTo == 'Edit'
+                ? Navigator.of(context).pop()
+                : Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => DeletePage(),
+                    ),
+                  ),
+          ),
+        );
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => widget.backTo == 'Edit'
+                ? Navigator.of(context).pop()
+                : Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => DeletePage(),
+                    ),
+                  ),
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.remove_circle),
+              onPressed: () {
+                if (widget.student != null) {
+                  if (studentCourses.length == 0) {
+                    AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
+                  } else {
+                    deleteAll();
+                  }
+                } else if (widget.doctor != null && doctorCourses.length == 0) {
+                  AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
+                } else {
+                  AppUtils.showDialog(
+                    context: context,
+                    title: 'تحذير',
+                    negativeText: 'لا',
+                    onNegativeButtonPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    positiveText: 'نعم',
+                    onPositiveButtonPressed: () {
+                      deleteAll();
+                    },
+                    contentText: 'هل تريد مسح جميع المواد ؟',
+                  );
+                }
+              },
+            ),
+          ],
+          backgroundColor: Const.mainColor,
+          title: Text(
+            'حذف',
+            style: TextStyle(
+              fontFamily: 'Tajawal',
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 24,
             ),
           ),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.remove_circle),
-            onPressed: () {
-              if (widget.student != null) {
-                if (studentCourses.length == 0) {
-                  AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
-                  return;
-                }
-              } else if (doctorCourses.length == 0) {
-                AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
-                return;
-              } else {
-                AppUtils.showDialog(
-                  context: context,
-                  title: 'تحذير',
-                  negativeText: 'لا',
-                  onNegativeButtonPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  positiveText: 'نعم',
-                  onPositiveButtonPressed: () {
-                    deleteAll();
-                  },
-                  contentText: 'هل تريد مسح جميع المواد ؟',
-                );
-              }
-            },
-          ),
-        ],
-        backgroundColor: Const.mainColor,
-        title: Text(
-          'حذف',
-          style: TextStyle(
-            fontFamily: 'Tajawal',
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 24,
-          ),
-        ),
-      ),
-      body: networkProvider.hasNetworkConnection == null
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : networkProvider.hasNetworkConnection
-              ? Column(
-                  children: <Widget>[
-                    Hero(
-                      tag: 'assets/images/delete.png',
-                      child: Image.asset('assets/images/delete.png'),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(15),
-                    ),
-                    Text(
-                      '${widget.type == 'Doctors' ? widget.doctor.name : widget.student.name}',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Const.mainColor,
-                        fontSize: 20,
-                      ),
-                    ),
-                    SizedBox(
-                      height: ScreenUtil().setHeight(5),
-                    ),
-                    widget.type == 'Doctors'
-                        ? doctorCourses != null
-                            ? Expanded(
-                                child: ListView.builder(
-                                  addAutomaticKeepAlives: true,
-                                  itemCount: widget.doctor.subjects.length,
-                                  itemBuilder: (context, index) {
-                                    return ListTile(
-                                      onTap: () {
-                                        deleteCourseFromDoctor(
-                                            context, '${doctorCourses[index]}');
-                                      },
-                                      leading: Text(
-                                        'X',
-                                        textAlign: TextAlign.right,
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                        ),
-                                      ),
-                                      trailing: Icon(
-                                        Icons.description,
-                                        color: Const.mainColor,
-                                      ),
-                                      title: Text(
-                                        '${doctorCourses[index]}',
-                                        textAlign: TextAlign.right,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              )
-                            : SizedBox.shrink()
-                        : studentCourses.isEmpty && fetched
-                            ? SizedBox.shrink()
-                            : studentCourses.isEmpty && !fetched
-                                ? Container(
-                                    height: ScreenUtil().setHeight(160),
-                                    child: Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                  )
-                                : Expanded(
-                                    child: ListView.builder(
-                                      addAutomaticKeepAlives: true,
-                                      itemCount: studentCourses.length,
-                                      itemBuilder: (context, index) {
-                                        return ListTile(
-                                          onTap: () {
-                                            deleteCourseFromStudent(
-                                              context,
-                                              index,
-                                            );
-                                          },
-                                          leading: Text(
-                                            'X',
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                            ),
-                                          ),
-                                          trailing: Icon(
-                                            Icons.description,
-                                            color: Const.mainColor,
-                                          ),
-                                          subtitle: Text(
-                                            '${studentCourses[index].code}',
-                                            textAlign: TextAlign.right,
-                                          ),
-                                          title: Text(
-                                            '${studentCourses[index].name}',
-                                            textAlign: TextAlign.right,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  )
-                  ],
-                )
-              : Container(
-                  color: Color(0xffF2F2F2),
-                  height: MediaQuery.of(context).size.height,
-                  child: Column(
+        body: networkProvider.hasNetworkConnection == null
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : networkProvider.hasNetworkConnection
+                ? Column(
                     children: <Widget>[
-                      Image.asset(
-                        'assets/images/no_internet_connection.jpg',
+                      Hero(
+                        tag: 'assets/images/delete.png',
+                        child: Image.asset('assets/images/delete.png'),
+                      ),
+                      SizedBox(
+                        height: ScreenUtil().setHeight(15),
                       ),
                       Text(
-                        'لا يوجد اتصال بالانترنت',
+                        '${widget.type == 'Doctors' ? widget.doctor.name : widget.student.name}',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 22,
+                          color: Const.mainColor,
+                          fontSize: 20,
                         ),
                       ),
+                      SizedBox(
+                        height: ScreenUtil().setHeight(5),
+                      ),
+                      widget.type == 'Doctors'
+                          ? doctorCourses.isEmpty && fetched
+                              ? Text('لا يوجد مواد')
+                              : doctorCourses.isEmpty && !fetched
+                                  ? Container(
+                                      height: ScreenUtil().setHeight(60),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  : Expanded(
+                                      child: ListView.builder(
+                                        addAutomaticKeepAlives: true,
+                                        itemCount: doctorCourses.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            onTap: () {
+                                              deleteCourseFromDoctor(context,
+                                                  '${doctorCourses[index]}');
+                                            },
+                                            leading: Text(
+                                              'X',
+                                              textAlign: TextAlign.right,
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                            trailing: Icon(
+                                              Icons.description,
+                                              color: Const.mainColor,
+                                            ),
+                                            title: Text(
+                                              '${doctorCourses[index]}',
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    )
+                          : studentCourses.isEmpty && fetched
+                              ? Text('لا يوجد مواد')
+                              : studentCourses.isEmpty && !fetched
+                                  ? Container(
+                                      height: ScreenUtil().setHeight(60),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    )
+                                  : Expanded(
+                                      child: ListView.builder(
+                                        addAutomaticKeepAlives: true,
+                                        itemCount: studentCourses.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            onTap: () {
+                                              deleteCourseFromStudent(
+                                                context,
+                                                index,
+                                              );
+                                            },
+                                            leading: Text(
+                                              'X',
+                                              textAlign: TextAlign.right,
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
+                                            ),
+                                            trailing: Icon(
+                                              Icons.description,
+                                              color: Const.mainColor,
+                                            ),
+                                            subtitle: Text(
+                                              '${studentCourses[index].code}',
+                                              textAlign: TextAlign.right,
+                                            ),
+                                            title: Text(
+                                              '${studentCourses[index].name}',
+                                              textAlign: TextAlign.right,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    )
                     ],
+                  )
+                : Container(
+                    color: Color(0xffF2F2F2),
+                    height: MediaQuery.of(context).size.height,
+                    child: Column(
+                      children: <Widget>[
+                        Image.asset(
+                          'assets/images/no_internet_connection.jpg',
+                        ),
+                        Text(
+                          'لا يوجد اتصال بالانترنت',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+      ),
     );
   }
 
@@ -241,6 +285,7 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
       onPositiveButtonPressed: () async {
         Navigator.of(context).pop();
         AppUtils.showToast(msg: 'جاري المسح');
+
         await Firestore.instance
             .collection('Doctors')
             .document(widget.doctor.id)
@@ -260,8 +305,8 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
           },
         );
 
+        Navigator.of(context).pop();
         AppUtils.showToast(msg: 'تم مسج الكورس');
-        doctorCourses.remove('$code');
         setState(() {});
       },
       contentText: 'هل تريد مسح الكورس؟',
@@ -280,8 +325,6 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
       onPositiveButtonPressed: () async {
         Navigator.of(context).pop();
 
-        print(studentCourses[index].code);
-
         await Firestore.instance
             .collection('Subjects')
             .document(studentCourses[index].code)
@@ -289,7 +332,7 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
             .document(widget.student.id)
             .delete();
 
-        studentCourses.removeAt(index);
+        Navigator.of(context).pop();
         setState(() {});
         AppUtils.showToast(msg: 'تم مسج الكورس');
       },
@@ -316,65 +359,87 @@ class _DeleteCourseFromStdOrDocState extends State<DeleteCourseFromStdOrDoc> {
         }
       }
     }
+    fetched = true;
 
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void deleteAll() async {
     if (widget.student != null) {
-      if (studentCourses.length == 0) {
-        AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
-        return;
-      }
-      AppUtils.showToast(msg: 'جاري المسح');
-      Firestore firestore = Firestore.instance;
-      var allSubjects = await firestore.collection('Subjects').getDocuments();
-      for (int i = 0; i < allSubjects.documents.length; i++) {
-        studentCourses.removeAt(i);
-        await firestore
-            .collection('Subjects')
-            .document(allSubjects.documents[i].documentID)
-            .collection('Students')
-            .document(widget.student.id)
-            .delete();
-      }
+      AppUtils.showDialog(
+        context: context,
+        title: 'تنبيه',
+        negativeText: 'لا',
+        onNegativeButtonPressed: () {
+          Navigator.of(context).pop();
+        },
+        positiveText: 'نعم',
+        onPositiveButtonPressed: () async {
+          Navigator.of(context).pop();
+          AppUtils.showToast(msg: 'جاري المسح');
+          Firestore firestore = Firestore.instance;
+          var allSubjects =
+              await firestore.collection('Subjects').getDocuments();
+          for (int i = 0; i < allSubjects.documents.length; i++) {
+            await firestore
+                .collection('Subjects')
+                .document(allSubjects.documents[i].documentID)
+                .collection('Students')
+                .document(widget.student.id)
+                .delete();
+          }
 
-      AppUtils.showToast(msg: 'تم المسح');
-      if (mounted) {
-        setState(() {});
-      }
+          AppUtils.showToast(msg: 'تم المسح');
+          Navigator.of(context).pop();
+          if (mounted) {
+            setState(() {});
+          }
+        },
+        contentText: 'هل تريد مسح جميع المواد ؟',
+      );
     } else {
-      if (doctorCourses.length == 0) {
-        AppUtils.showToast(msg: 'لا يوجد مواد ليتم حذفها');
-        return;
-      }
-      AppUtils.showToast(msg: 'جاري المسح');
-      Firestore firestore = Firestore.instance;
-      for (int i = 0; i < doctorCourses.length; i++) {
-        await firestore
-            .collection('Doctors')
-            .document(widget.doctor.id)
-            .updateData(
-          {
-            'subjects': FieldValue.arrayRemove([doctorCourses[i]]),
-          },
-        );
-        await firestore
-            .collection('Subjects')
-            .document(doctorCourses[i])
-            .updateData(
-          {
-            'profID': '',
-            'profName': '',
-          },
-        );
-        doctorCourses.removeAt(i);
-      }
+      AppUtils.showDialog(
+        context: context,
+        title: 'تنبيه',
+        negativeText: 'لا',
+        onNegativeButtonPressed: () {
+          Navigator.of(context).pop();
+        },
+        positiveText: 'نعم',
+        onPositiveButtonPressed: () async {
+          Navigator.of(context).pop();
+          AppUtils.showToast(msg: 'جاري المسح');
+          Firestore firestore = Firestore.instance;
+          for (int i = 0; i < doctorCourses.length; i++) {
+            await firestore
+                .collection('Doctors')
+                .document(widget.doctor.id)
+                .updateData(
+              {
+                'subjects': FieldValue.arrayRemove([doctorCourses[i]]),
+              },
+            );
+            await firestore
+                .collection('Subjects')
+                .document(doctorCourses[i])
+                .updateData(
+              {
+                'profID': '',
+                'profName': '',
+              },
+            );
+          }
 
-      AppUtils.showToast(msg: 'تم المسح');
-      if (mounted) {
-        setState(() {});
-      }
+          AppUtils.showToast(msg: 'تم المسح');
+          Navigator.of(context).pop();
+          if (mounted) {
+            setState(() {});
+          }
+        },
+        contentText: 'هل تريد مسح جميع المواد ؟',
+      );
     }
   }
 }

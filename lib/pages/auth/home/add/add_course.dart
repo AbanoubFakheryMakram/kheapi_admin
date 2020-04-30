@@ -20,13 +20,9 @@ class _AddCourseState extends State<AddCourse> {
   final _formKey = GlobalKey<FormState>();
   String courseName;
   String courseCode;
-  String doctorCode;
-  String doctorName;
 
   TextEditingController courseNameController = TextEditingController();
   TextEditingController courseCodeController = TextEditingController();
-  TextEditingController doctorNameController = TextEditingController();
-  TextEditingController doctorCodeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +224,7 @@ class _AddCourseState extends State<AddCourse> {
       controller.forward();
 
       bool isCourseCodeExist = await FirebaseUtils.doesObjectExist(
-        username: doctorCode,
+        username: courseCode,
         collection: 'Subjects',
       );
 
@@ -255,8 +251,6 @@ class _AddCourseState extends State<AddCourse> {
           );
       courseNameController.clear();
       courseCodeController.clear();
-      doctorNameController.clear();
-      doctorCodeController.clear();
 
       AppUtils.showToast(msg: 'تمت الاضافة');
       controller.reverse();

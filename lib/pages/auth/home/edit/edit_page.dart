@@ -2,22 +2,24 @@ import 'package:admin/models/doctor.dart';
 import 'package:admin/models/pointer.dart';
 import 'package:admin/models/student.dart';
 import 'package:admin/models/subject.dart';
-import 'package:admin/pages/auth/home/admin_home.dart';
-import 'package:admin/pages/auth/home/delete/delete_course_from_doc_std.dart';
+import 'package:admin/pages/auth/home/edit/edit_course.dart';
+import 'package:admin/pages/auth/home/edit/edit_doctor.dart';
 import 'package:admin/providers/network_provider.dart';
-import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:provider/provider.dart';
 
-class DeletePage extends StatefulWidget {
+import '../admin_home.dart';
+import 'edit_student.dart';
+
+class EditPage extends StatefulWidget {
   @override
-  _DeletePageState createState() => _DeletePageState();
+  _EditPageState createState() => _EditPageState();
 }
 
-class _DeletePageState extends State<DeletePage> {
+class _EditPageState extends State<EditPage> {
   // 0 >> Course    ||    1 >> Student    ||    2 >> Doctor
   int selectedRadio;
   List<Subject> subjectsData;
@@ -159,36 +161,6 @@ class _DeletePageState extends State<DeletePage> {
 
     return Scaffold(
       appBar: AppBar(
-        actions: selectedRadio == 0
-            ? <Widget>[
-                Tooltip(
-                  message: 'مسح جميع المواد',
-                  child: IconButton(
-                    icon: Icon(Icons.delete_sweep),
-                    onPressed: () {
-                      if (subjectsData.length == 0) {
-                        AppUtils.showToast(msg: 'لا يوجد مواد ليتم مسحها');
-                      } else {
-                        AppUtils.showDialog(
-                          context: context,
-                          title: 'تنبيه',
-                          negativeText: 'لا',
-                          positiveText: 'نعم',
-                          onNegativeButtonPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          onPositiveButtonPressed: () {
-                            Navigator.of(context).pop();
-                            deleteAllCourses();
-                          },
-                          contentText: 'هل تريد مسح جميع المواد ؟',
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ]
-            : null,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pushReplacement(
@@ -200,7 +172,7 @@ class _DeletePageState extends State<DeletePage> {
         ),
         backgroundColor: Const.mainColor,
         title: Text(
-          'حذف',
+          'تعديل',
           style: TextStyle(
             fontFamily: 'Tajawal',
             fontWeight: FontWeight.bold,
@@ -219,10 +191,6 @@ class _DeletePageState extends State<DeletePage> {
           : networkProvider.hasNetworkConnection
               ? Column(
                   children: <Widget>[
-                    Hero(
-                      tag: 'assets/images/delete.png',
-                      child: Image.asset('assets/images/delete.png'),
-                    ),
                     SizedBox(
                       height: ScreenUtil().setHeight(15),
                     ),
@@ -295,31 +263,6 @@ class _DeletePageState extends State<DeletePage> {
     );
   }
 
-  void deleteCourse(int index, context) {
-    AppUtils.showDialog(
-      context: context,
-      title: 'تحذير',
-      negativeText: 'الغاء',
-      positiveText: 'تاكيد',
-      onNegativeButtonPressed: () {
-        Navigator.of(context).pop();
-      },
-      onPositiveButtonPressed: () async {
-        Navigator.of(context).pop();
-        Subject clickedSubject = subjectsData[index];
-        subjectsData.removeAt(index);
-        await _firestore
-            .collection('Subjects')
-            .document(clickedSubject.code)
-            .delete();
-
-        setState(() {});
-        AppUtils.showToast(msg: 'تم مسج الكورس');
-      },
-      contentText: 'هل تريد مسح الكورس؟',
-    );
-  }
-
   Widget coursesListView(BuildContext context) {
     return Expanded(
       child: Container(
@@ -335,7 +278,13 @@ class _DeletePageState extends State<DeletePage> {
                     itemBuilder: (context, index) {
                       return ListTile(
                         onTap: () {
-                          deleteCourse(index, context);
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => EditCourse(
+                                currentSubject: subjectsData[index],
+                              ),
+                            ),
+                          );
                         },
                         subtitle: Text(
                           '${subjectsData[index].code}',
@@ -348,14 +297,10 @@ class _DeletePageState extends State<DeletePage> {
                           '${subjectsData[index].name}',
                           textAlign: TextAlign.right,
                         ),
-                        leading: Text(
-                          'X',
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
+                        leading: Icon(
+                          Icons.arrow_left,
+                          color: Const.mainColor,
+                          size: 30,
                         ),
                         trailing: Icon(
                           Icons.description,
@@ -391,11 +336,8 @@ class _DeletePageState extends State<DeletePage> {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => DeleteCourseFromStdOrDoc(
-                            backTo: 'Delete',
-                            type: 'Doctors',
-                            student: null,
-                            doctor: doctorsData[index],
+                          builder: (_) => EditDoctor(
+                            currentDoctor: doctorsData[index],
                           ),
                         ),
                       );
@@ -417,7 +359,7 @@ class _DeletePageState extends State<DeletePage> {
                       size: 30,
                     ),
                     trailing: Icon(
-                      Icons.settings_input_svideo,
+                      Icons.star,
                       color: Const.mainColor,
                     ),
                   );
@@ -450,12 +392,8 @@ class _DeletePageState extends State<DeletePage> {
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => DeleteCourseFromStdOrDoc(
-                            type: 'Students',
-                            backTo: 'Delete',
-                            student: studentsData[index],
-                            doctor: null,
-                          ),
+                          builder: (_) =>
+                              EditStudent(currentStd: studentsData[index]),
                         ),
                       );
                     },
@@ -494,39 +432,5 @@ class _DeletePageState extends State<DeletePage> {
               ),
       ),
     );
-  }
-
-  void deleteAllCourses() async {
-    AppUtils.showToast(msg: 'starting....');
-    var firestore = Firestore.instance;
-    for (int i = 0; i < subjectsData.length; i++) {
-      var stdDocs = await firestore
-          .collection('Subjects')
-          .document(subjectsData[i].code)
-          .collection('Students')
-          .getDocuments();
-      for (DocumentSnapshot ds in stdDocs.documents) {
-        ds.reference.delete();
-      }
-      await firestore
-          .collection('Subjects')
-          .document(subjectsData[i].code)
-          .delete();
-    }
-    for (int i = 0; i < doctorsData.length; i++) {
-      await firestore
-          .collection('Doctors')
-          .document(doctorsData[i].id)
-          .updateData(
-        {
-          'subjects': FieldValue.delete(),
-        },
-      );
-      doctorsData[i].subjects.clear();
-    }
-
-    subjectsData.clear();
-    setState(() {});
-    AppUtils.showToast(msg: 'Done');
   }
 }

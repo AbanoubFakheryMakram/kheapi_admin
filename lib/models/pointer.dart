@@ -4,7 +4,7 @@ import 'doctor.dart';
 import 'doctor_absence_model.dart';
 
 class Pointer {
-  static Student currentStudent = Student();
+  static Doctor currentStudent = Doctor();
   static Doctor currentDoctor = Doctor();
   static Admin currentAdmin = Admin();
   static DoctorAbsenceModel currentAbsence = DoctorAbsenceModel();

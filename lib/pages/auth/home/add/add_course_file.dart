@@ -5,6 +5,7 @@ import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
+import 'package:path/path.dart' as path;
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
@@ -23,11 +24,24 @@ class _AddCourseFileState extends State<AddCourseFile> {
 
   ProgressDialog pr;
 
+  String _extension;
+
+  bool isCSVFile = false;
+
   @override
   void initState() {
     super.initState();
 
-    loadCSVFile();
+    _extension = path.extension(widget.selectedFile.path).split('?').first;
+
+    if (_extension == '.csv' || _extension == '.CSV') {
+      isCSVFile = true;
+      print(_extension);
+      loadCSVFile();
+    } else {
+      isCSVFile = false;
+      loadedData = [[]];
+    }
   }
 
   loadCSVFile() async {
@@ -65,7 +79,11 @@ class _AddCourseFileState extends State<AddCourseFile> {
           IconButton(
             icon: Icon(Icons.cloud_upload),
             onPressed: () {
-              uploadToDatabase(context);
+              if (isCSVFile) {
+                uploadToDatabase(context);
+              } else {
+                AppUtils.showToast(msg: 'ملف غير صحيح');
+              }
             },
           ),
         ],
@@ -89,39 +107,47 @@ class _AddCourseFileState extends State<AddCourseFile> {
                   ? Center(
                       child: CircularProgressIndicator(),
                     )
-                  : Stack(
-                      children: <Widget>[
-                        SingleChildScrollView(
-                          child: Table(
-                            border: TableBorder.all(
-                              width: 1,
-                            ),
-                            children: loadedData.map(
-                              (itemList) {
-                                return TableRow(
-                                    children: itemList.map(
-                                  (row) {
-                                    return Text(
-                                      row == null || row.toString().isEmpty
-                                          ? 'null'
-                                          : row.toString(),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: row == null ||
-                                                row.toString().isEmpty
-                                            ? Colors.red
-                                            : Colors.black,
-                                      ),
-                                    );
+                  : isCSVFile
+                      ? Stack(
+                          children: <Widget>[
+                            SingleChildScrollView(
+                              child: Table(
+                                border: TableBorder.all(
+                                  width: 1,
+                                ),
+                                children: loadedData.map(
+                                  (itemList) {
+                                    return TableRow(
+                                        children: itemList.map(
+                                      (row) {
+                                        return Text(
+                                          row == null || row.toString().isEmpty
+                                              ? 'null'
+                                              : row.toString(),
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: row == null ||
+                                                    row.toString().isEmpty
+                                                ? Colors.red
+                                                : Colors.black,
+                                          ),
+                                        );
+                                      },
+                                    ).toList());
                                   },
-                                ).toList());
-                              },
-                            ).toList(),
+                                ).toList(),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Center(
+                          child: Text(
+                            'ملف غير صحيح يجب ان يكون امتداد الملف csv. وليس $_extension',
+                            textAlign: TextAlign.center,
+                            textDirection: TextDirection.rtl,
                           ),
-                        ),
-                      ],
-                    )
+                        )
               : Container(
                   color: Color(0xffF2F2F2),
                   height: MediaQuery.of(context).size.height,
