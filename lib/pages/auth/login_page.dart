@@ -413,15 +413,19 @@ class _LoginPageState extends State<LoginPage> {
     );
     Navigator.of(context)
         .pushReplacement(
-          PageTransition(
-            child: AdminHomePage(),
-            type: PageTransitionType.fade,
-          ),
-        )
-        .then(
-          (_) => setState(
-            () => rect = null,
-          ),
+      PageTransition(
+        child: AdminHomePage(
+          username: username,
+        ),
+        type: PageTransitionType.fade,
+      ),
+    )
+        .then((_) {
+      if (mounted) {
+        setState(
+          () => rect = null,
         );
+      }
+    });
   }
 }

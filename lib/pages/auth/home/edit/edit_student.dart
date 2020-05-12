@@ -1,6 +1,7 @@
 import 'package:admin/animations/fade_animation.dart';
 import 'package:admin/models/student.dart';
 import 'package:admin/pages/auth/home/delete/delete_course_from_doc_std.dart';
+import 'package:admin/pages/auth/home/edit/edit_page.dart';
 import 'package:admin/providers/network_provider.dart';
 import 'package:admin/utils/app_utils.dart';
 import 'package:admin/utils/const.dart';
@@ -8,6 +9,7 @@ import 'package:admin/utils/patterns.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:provider/provider.dart';
 
@@ -34,6 +36,8 @@ class _EditStudentState extends State<EditStudent> {
 
   String oldStdCode;
 
+  ProgressDialog pr;
+
   TextEditingController stdNameController = TextEditingController();
   TextEditingController stdCodeController = TextEditingController();
   TextEditingController stdPasswordController = TextEditingController();
@@ -55,12 +59,67 @@ class _EditStudentState extends State<EditStudent> {
     stdName = widget.currentStd.name;
   }
 
+  showLoadingHud(BuildContext context) async {
+    pr.show();
+  }
+
+  hideLoadingHud(BuildContext context) {
+    pr.dismiss();
+  }
+
   @override
   Widget build(BuildContext context) {
     var networkProvider = Provider.of<NetworkProvider>(context);
 
+    pr = new ProgressDialog(
+      context,
+      type: ProgressDialogType.Download,
+      isDismissible: false,
+      showLogs: false,
+    );
+    pr.style(
+      message: 'Deleting data...',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: CircularProgressIndicator(),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+      progressTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 13.0,
+        fontWeight: FontWeight.w400,
+      ),
+      messageTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 19.0,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+    hideLoadingHud(context);
+
     return Scaffold(
       appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.delete_forever),
+            onPressed: () {
+              AppUtils.showDialog(
+                context: context,
+                title: 'تنبيه',
+                negativeText: 'لا',
+                positiveText: 'نعم',
+                onNegativeButtonPressed: () {
+                  Navigator.of(context).pop();
+                },
+                onPositiveButtonPressed: () {
+                  Navigator.of(context).pop();
+                  deleteStd(context);
+                },
+                contentText: 'هل تريد مسح الطالب ؟',
+              );
+            },
+          ),
+        ],
         backgroundColor: Const.mainColor,
         title: Text(
           'تعديل بيانات طالب',
@@ -465,5 +524,31 @@ class _EditStudentState extends State<EditStudent> {
       setState(() {});
       Navigator.of(context).pop();
     }
+  }
+
+  void deleteStd(BuildContext context) async {
+    showLoadingHud(context);
+    Firestore firestore = Firestore.instance;
+
+    // remove current student from all courses if exist
+    var courses = await firestore.collection('Subjects').getDocuments();
+    for (int i = 0; i < courses.documents.length; i++) {
+      var currentCourse = courses.documents[i].data;
+      await firestore
+          .collection('Subjects')
+          .document(currentCourse['code'])
+          .collection('Students')
+          .document(stdCode)
+          .delete();
+    }
+
+    // finally remove current student data from database
+    await firestore.collection('Students').document(stdCode).delete();
+    hideLoadingHud(context);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => EditPage(),
+      ),
+    );
   }
 }

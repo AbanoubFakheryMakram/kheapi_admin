@@ -8,10 +8,12 @@ import 'package:admin/utils/patterns.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:progress_indicator_button/progress_button.dart';
 import 'package:provider/provider.dart';
 
 import 'add_courses_to_std_doc.dart';
+import 'edit_page.dart';
 
 class EditDoctor extends StatefulWidget {
   final Doctor currentDoctor;
@@ -31,7 +33,9 @@ class _EditDoctorState extends State<EditDoctor> {
   String doctorPhone;
   String doctorSSN;
 
-  String olddoctorCode;
+  String oldDoctorCode;
+
+  ProgressDialog pr;
 
   TextEditingController doctorNameController = TextEditingController();
   TextEditingController doctorCodeController = TextEditingController();
@@ -44,7 +48,7 @@ class _EditDoctorState extends State<EditDoctor> {
   void initState() {
     super.initState();
 
-    olddoctorCode = widget.currentDoctor.id;
+    oldDoctorCode = widget.currentDoctor.id;
     doctorCode = widget.currentDoctor.id;
     doctorPassword = widget.currentDoctor.password;
     doctorEmail = widget.currentDoctor.email;
@@ -53,12 +57,68 @@ class _EditDoctorState extends State<EditDoctor> {
     doctorName = widget.currentDoctor.name;
   }
 
+  showLoadingHud(BuildContext context) async {
+    pr.show();
+  }
+
+  hideLoadingHud(BuildContext context) {
+    pr.dismiss();
+  }
+
   @override
   Widget build(BuildContext context) {
     var networkProvider = Provider.of<NetworkProvider>(context);
 
+    pr = new ProgressDialog(
+      context,
+      type: ProgressDialogType.Download,
+      isDismissible: false,
+      showLogs: false,
+    );
+    pr.style(
+      message: 'Deleting data...',
+      borderRadius: 10.0,
+      backgroundColor: Colors.white,
+      progressWidget: CircularProgressIndicator(),
+      elevation: 10.0,
+      insetAnimCurve: Curves.easeInOut,
+      progressTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 13.0,
+        fontWeight: FontWeight.w400,
+      ),
+      messageTextStyle: TextStyle(
+        color: Colors.black,
+        fontSize: 19.0,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+
+    hideLoadingHud(context);
+
     return Scaffold(
       appBar: AppBar(
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.delete_forever),
+            onPressed: () {
+              AppUtils.showDialog(
+                context: context,
+                title: 'تنبيه',
+                negativeText: 'لا',
+                positiveText: 'نعم',
+                onNegativeButtonPressed: () {
+                  Navigator.of(context).pop();
+                },
+                onPositiveButtonPressed: () {
+                  Navigator.of(context).pop();
+                  deleteDoctor(context);
+                },
+                contentText: 'هل تريد مسح الدكتور ؟',
+              );
+            },
+          ),
+        ],
         backgroundColor: Const.mainColor,
         title: Text(
           'تعديل بيانات دكتور',
@@ -424,7 +484,7 @@ class _EditDoctorState extends State<EditDoctor> {
 
       await Firestore.instance
           .collection('Students')
-          .document(olddoctorCode)
+          .document(oldDoctorCode)
           .delete();
 
       await Firestore.instance
@@ -439,5 +499,34 @@ class _EditDoctorState extends State<EditDoctor> {
       setState(() {});
       Navigator.of(context).pop();
     }
+  }
+
+  void deleteDoctor(BuildContext context) async {
+    showLoadingHud(context);
+    Firestore firestore = Firestore.instance;
+
+    // remove current doctor from all courses if exist
+    var courses = await firestore.collection('Subjects').getDocuments();
+    for (int i = 0; i < courses.documents.length; i++) {
+      var currentCourse = courses.documents[i].data;
+      await firestore
+          .collection('Subjects')
+          .document(currentCourse['code'])
+          .updateData(
+        {
+          'profID': '',
+          'profName': '',
+        },
+      );
+    }
+
+    // finally remove current doctor data from database
+    await firestore.collection('Doctors').document(doctorCode).delete();
+    hideLoadingHud(context);
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => EditPage(),
+      ),
+    );
   }
 }

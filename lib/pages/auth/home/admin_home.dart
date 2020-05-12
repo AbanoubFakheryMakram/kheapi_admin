@@ -29,6 +29,13 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    Pointer.currentAdmin = null;
+  }
+
   void loadUserData() async {
     DocumentSnapshot snapshot = await FirebaseUtils.getCurrentUserData(
       username: widget.username,
@@ -37,7 +44,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
     Admin currentUser = Admin.fromMap(snapshot.data);
     Pointer.currentAdmin = currentUser;
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -53,8 +62,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
     if (networkProvider.hasNetworkConnection != null &&
         networkProvider.hasNetworkConnection) {
-      if (Pointer.currentAdmin.name == null ||
-          Pointer.currentAdmin.username == null) {
+      if (Pointer.currentAdmin == null || Pointer.currentDoctor.name == null) {
         loadUserData();
       }
     }
@@ -106,7 +114,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
           ),
         ),
       ),
-      body: networkProvider.hasNetworkConnection == null
+      body: networkProvider.hasNetworkConnection == null ||
+              Pointer.currentAdmin == null
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -123,8 +132,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             20,
                           ),
                         ),
-                        Pointer.currentAdmin.name == null ||
-                                Pointer.currentAdmin.name.isEmpty
+                        Pointer.currentAdmin.name == null
                             ? Center(
                                 child: CircularProgressIndicator(),
                               )

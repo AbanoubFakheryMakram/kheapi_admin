@@ -500,6 +500,7 @@ class _EditCourseState extends State<EditCourse> {
 
         var firestore = Firestore.instance;
 
+        // remove all std in this course
         var stdDocs = await firestore
             .collection('Subjects')
             .document(oldCourseCode)
@@ -510,6 +511,7 @@ class _EditCourseState extends State<EditCourse> {
           ds.reference.delete();
         }
 
+        // remove course
         await firestore.collection('Subjects').document(oldCourseCode).delete();
 
         deleteing = false;
